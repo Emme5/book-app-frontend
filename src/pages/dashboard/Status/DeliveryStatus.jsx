@@ -1,6 +1,6 @@
 import React from 'react';
-import { useGetAllOrdersQuery, useUpdateOrderStatusMutation } from '../../../redux/features/order/ordersApi';
 import Swal from "sweetalert2";
+import { useGetAllOrdersQuery, useUpdateOrderStatusMutation} from '../../../redux/features/order/ordersApi';
 import { HashLoader } from 'react-spinners';
 import eventEmitter from '../../../utils/eventEmitter';
 
