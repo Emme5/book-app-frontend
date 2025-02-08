@@ -1,0 +1,21 @@
+import { createSlice } from "@reduxjs/toolkit";
+
+const initialState = {
+  books: [], // ข้อมูลหนังสือทั้งหมด
+  loading: false,
+  error: null,
+};
+
+const booksSlice = createSlice({
+  name: "books",
+  initialState,
+  reducers: {
+    setBooks: (state, action) => {
+      state.books = action.payload;
+    },
+    // reducers อื่นๆ ตามที่ต้องการ
+  },
+});
+
+export const { setBooks } = booksSlice.actions;
+export default booksSlice.reducer;
