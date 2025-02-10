@@ -69,6 +69,7 @@ const CheckoutPage = () => {
                 headers: {
                     'Content-Type': 'application/json',
                 },
+                credentials: 'include',
                 body: JSON.stringify({
                     items: cartItem.map(item => ({
                         id: item._id,
