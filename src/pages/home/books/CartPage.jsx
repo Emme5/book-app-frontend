@@ -6,11 +6,16 @@ import { clearCart, removeFromCart } from '../../../redux/features/cart/cartSlic
 import Swal from 'sweetalert2';
 
 const CartPage = () => {
-    const cartItem = useSelector(state => state.cart.cartItem);
-    const dispatch = useDispatch()
+    const cartItem = useSelector(state => state.cart.cartItem) || [];
+    const dispatch = useDispatch();
     const navigate = useNavigate();
 
-    const totalPrice = cartItem.reduce((acc, item) => acc + item.newPrice, 0).toFixed(2);
+    const totalPrice = cartItem.reduce((acc, item) => {
+      if (!item || typeof item.newPrice !== 'number') {
+          return acc;
+      }
+      return acc + item.newPrice;
+  }, 0).toFixed(2);
     
     const handleRemoveFromCart = (product) => {
         dispatch(removeFromCart(product))
