@@ -69,19 +69,33 @@ const AddBook = () => {
     const handleFileChange = (e) => {
         const files = Array.from(e.target.files);
         const maxSize = 5 * 1024 * 1024; // 5MB
+
+        if (files.length + imageFiles.length > 5) {
+            Swal.fire({
+                title: "จำกัดรูปภาพ",
+                text: "คุณสามารถอัพโหลดรูปได้สูงสุด 5 รูป",
+                icon: "warning"
+            });
+            return;
+        }
       
-      const validSize = files.every(file => file.size <= maxSize);
-      if (!validSize) {
-          Swal.fire({
-              title: "ไฟล์มีขนาดใหญ่เกินไป",
-              text: "กรุณาอัพโหลดไฟล์ขนาดไม่เกิน 5MB",
-              icon: "warning"
-          });
-          return;
-      }
+        const invalidFiles = files.filter(file => {
+            const isValidType = file.type.startsWith('image/');
+            const isValidSize = file.size <= maxSize;
+            return !isValidType || !isValidSize;
+        });
+
+      if (invalidFiles.length > 0) {
+        Swal.fire({
+            title: "ไฟล์ไม่ถูกต้อง",
+            text: "กรุณาเลือกไฟล์รูปภาพขนาดไม่เกิน 5MB",
+            icon: "warning"
+        });
+        return;
+    }
         
-      setImageFiles(prev => [...prev, ...validFiles]);
-      setImageFileNames(prev => [...prev, ...validFiles.map(file => file.name)]);
+      setImageFiles(prev => [...prev, ...files]);
+    setImageFileNames(prev => [...prev, ...files.map(file => file.name)]);
     };
 
     return (
