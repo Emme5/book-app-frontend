@@ -57,35 +57,28 @@ const AddBook = () => {
         setImageFiles([]);
         setImageFileNames([]);
     } catch (error) {
-        console.error('Error:', error);
+        console.error('Error details:', error.response); // เพิ่ม log เพื่อ debug
         Swal.fire({
             title: "เกิดข้อผิดพลาด",
-            text: error.data?.message || "ไม่สามารถเพิ่มหนังสือได้ กรุณาลองใหม่อีกครั้ง",
+            text: "ไม่สามารถเพิ่มหนังสือได้ กรุณาลองใหม่อีกครั้ง",
             icon: "error"
         });
     }
 };
 
     const handleFileChange = (e) => {
-      const files = Array.from(e.target.files);
-      if (files.length + imageFiles.length > 5) {
+        const files = Array.from(e.target.files);
+        const maxSize = 5 * 1024 * 1024; // 5MB
+      
+      const validSize = files.every(file => file.size <= maxSize);
+      if (!validSize) {
           Swal.fire({
-              title: "จำกัดรูปภาพ",
-              text: "คุณสามารถอัพโหลดรูปได้สูงสุด 5 รูป",
+              title: "ไฟล์มีขนาดใหญ่เกินไป",
+              text: "กรุณาอัพโหลดไฟล์ขนาดไม่เกิน 5MB",
               icon: "warning"
           });
           return;
       }
-      
-      const validFiles = files.filter(file => file.type.startsWith('image/'));
-    if (validFiles.length !== files.length) {
-        Swal.fire({
-            title: "ไฟล์ไม่ถูกต้อง",
-            text: "กรุณาเลือกไฟล์รูปภาพเท่านั้น",
-            icon: "warning"
-        });
-        return;
-    }
         
       setImageFiles(prev => [...prev, ...validFiles]);
       setImageFileNames(prev => [...prev, ...validFiles.map(file => file.name)]);
