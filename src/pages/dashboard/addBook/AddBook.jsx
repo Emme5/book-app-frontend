@@ -3,6 +3,7 @@ import InputField from './InputField'
 import SelectField from './SelectField'
 import { useForm } from 'react-hook-form';
 import { useAddBookMutation } from '../../../redux/features/books/booksApi';
+import { uploadImageToCloudinary } from '../../../utils/cloudinaryUpload';
 import Swal from 'sweetalert2';
 
 const AddBook = () => {
@@ -10,19 +11,40 @@ const AddBook = () => {
     const [addBook, {isLoading, isError}] = useAddBookMutation()
     const [imageFiles, setImageFiles] = useState([]);
     const [imageFileNames, setImageFileNames] = useState([]);
+    const [imageUrls, setImageUrls] = useState([]);
 
     const onSubmit = async (data) => {
-      try {
-        if (!imageFiles.length) {
-            Swal.fire({
-                title: "กรุณาเลือกรูปภาพ",
-                text: "ต้องมีรูปภาพอย่างน้อย 1 รูป",
-                icon: "warning"
-            });
-            return;
-        }
+        try {
+            if (!imageFiles.length) {
+                Swal.fire({
+                    title: "กรุณาเลือกรูปภาพ",
+                    text: "ต้องมีรูปภาพอย่างน้อย 1 รูป",
+                    icon: "warning"
+                });
+                return;
+            }
+
+        const uploadPromises = imageFiles.map(async (file) => {
+            try {
+                return await uploadImageToCloudinary(file);
+            } catch (uploadError) {
+                console.error('Upload Error for file:', file.name, uploadError);
+                throw uploadError;
+            }
+        });
+
+        const cloudinaryUrls = await Promise.all(uploadPromises);
+        
+        // เก็บ URLs ของรูปภาพ
+        setImageUrls(cloudinaryUrls);
 
         const formData = new FormData();
+
+        // เพิ่มไฟล์รูปภาพโดยตรง ไม่ใช้ URL
+        formData.append('coverImage', imageFiles[0]);
+        imageFiles.slice(1).forEach(file => {
+            formData.append('coverImages', file);
+        });
 
         // ข้อมูลพื้นฐาน
         formData.append('title', data.title);
@@ -33,19 +55,12 @@ const AddBook = () => {
         formData.append('trending', data.trending ? 'true' : 'false');
 
         // เพิ่มรูปภาพ
-        const mainImage = imageFiles[0];
-        const additionalImages = imageFiles.slice(1);
-
-        formData.append('coverImage', mainImage);
-        additionalImages.forEach(image => {
-            formData.append('coverImages', image);
+        formData.append('coverImage', cloudinaryUrls[0]);
+        cloudinaryUrls.slice(1).forEach(url => {
+            formData.append('coverImages', url);
         });
 
-        // Debug: ดูข้อมูลที่จะส่ง
-        for (let [key, value] of formData.entries()) {
-        }
-
-        const response = await addBook(formData).unwrap();
+        await addBook(formData).unwrap();
 
         Swal.fire({
             title: "สำเร็จ",
@@ -56,11 +71,15 @@ const AddBook = () => {
         reset();
         setImageFiles([]);
         setImageFileNames([]);
+        
     } catch (error) {
-        console.error('Error details:', error.response); // เพิ่ม log เพื่อ debug
+        console.error('Full Error Object:', error);
+        console.error('Error Response:', error.response);
+        console.error('Error Data:', error.data);
+        
         Swal.fire({
             title: "เกิดข้อผิดพลาด",
-            text: "ไม่สามารถเพิ่มหนังสือได้ กรุณาลองใหม่อีกครั้ง",
+            text: error.response?.data?.message || error.message || "ไม่สามารถเพิ่มหนังสือได้ กรุณาลองใหม่อีกครั้ง",
             icon: "error"
         });
     }
@@ -199,6 +218,24 @@ const AddBook = () => {
                         </div>
                     )}
                 </div>
+
+                    {/* แสดงรูปภาพที่อัปโหลด */}
+        {imageUrls.length > 0 && (
+            <div className="mt-4">
+                <h3 className="text-lg font-semibold mb-2">รูปภาพที่อัปโหลด:</h3>
+                <div className="flex flex-wrap gap-4">
+                    {imageUrls.map((url, index) => (
+                        <img 
+                            key={index} 
+                            src={url} 
+                            alt={`Book cover ${index + 1}`} 
+                            className="w-32 h-32 object-cover rounded-lg"
+                        />
+                    ))}
+                </div>
+            </div>
+        )}
+
                 <button 
                     type="submit" 
                     className="w-full py-2 bg-green-500 text-white font-bold rounded-md"

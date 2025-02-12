@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
 import { useFetchAllBooksQuery } from "../../../redux/features/books/booksApi";
-import { getImgUrl } from "../../../utils/getImgUrl";
+
 import ModalBookDetail from "./ModalBookDetail";
 import { ScanSearch } from 'lucide-react';
 
@@ -108,7 +108,7 @@ function Book() {
 							</div>
 						)}
 						<img
-							src={getImgUrl(book.coverImage)}
+							src={book.coverImage}
 							alt={book.title}
 							className="w-screen sm:h-72 object-contain rounded-t-lg"
 						/>

@@ -17,7 +17,6 @@ import ManageBooks from "../pages/dashboard/manageBooks/ManageBooks";
 import AddBook from "../pages/dashboard/addBook/AddBook";
 import UpdateBook from "../pages/dashboard/EditBook/UpdateBook";
 import Book from "../pages/home/books/Book";
-import SearchResults from "../pages/SearchResults";
 import DeliveryStatus from "../pages/dashboard/Status/DeliveryStatus";
 import SuccessPage from "../pages/home/books/SuccessPage";
 import CancelPage from "../pages/home/books/CancelPage";
@@ -89,10 +88,6 @@ const router = createBrowserRouter([
 				path: "/book",
 				element: <Book />,
 				errorElement: <ErrorBoundary />,
-			},
-			{
-				path: "/search",
-				element: <SearchResults />,
 			},
 		],
 	},

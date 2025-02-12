@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { FiShoppingCart } from 'react-icons/fi'
 import { useParams } from 'react-router-dom'
-import { getImgUrl } from '../../../utils/getImgUrl';
 import { useDispatch } from 'react-redux';
 import { addToCart } from '../../../redux/features/cart/cartSlice';
 import { useFetchBookByIdQuery } from '../../../redux/features/books/booksApi';
@@ -72,7 +71,7 @@ const BookDetail = () => {
             {/* รูปหลัก */}
             <div className="relative border rounded-lg overflow-hidden h-[300px] sm:h-[400px] md:h-[500px] group mx-4">
             <img 
-              src={getImgUrl(selectedImageIndex === -1 ? book.coverImage : book.coverImages?.[selectedImageIndex])}
+              src={selectedImageIndex === -1 ? book.coverImage : book.coverImages?.[selectedImageIndex]}
               alt={book.title} 
               className='w-full h-full object-contain rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300'
             />
@@ -96,25 +95,25 @@ const BookDetail = () => {
             <div className="grid grid-cols-4 sm:grid-cols-5 gap-2 px-4 pb-4">
 
             {/* รูปเพิ่มเติม */}
-        {book.coverImages?.map((image, index) => (
-        <button 
-          key={index}
-          onClick={() => setSelectedImageIndex(index)}
-          className={`relative min-w-[80px] w-20 h-20 rounded-lg overflow-hidden transition-all duration-300
-              ${selectedImageIndex === -1 
-                ? 'ring-2 ring-blue-500 ring-offset-2 scale-110 shadow-lg' 
-                : 'hover:ring-2 hover:ring-blue-300 hover:ring-offset-1 hover:scale-105'}`}
-        >
-          <img 
-            src={getImgUrl(image)}
-            alt={`${book.title} view ${index + 1}`}
-            className='w-full h-full object-cover'
-          />
-          {selectedImageIndex === index && (
-            <div className="absolute inset-0 bg-blue-500/10" />
-          )}
-        </button>
-            ))}
+            {book.coverImages?.map((image, index) => (
+            <button 
+              key={index}
+              onClick={() => setSelectedImageIndex(index)}
+              className={`relative min-w-[80px] w-20 h-20 rounded-lg overflow-hidden transition-all duration-300
+                  ${selectedImageIndex === -1 
+                    ? 'ring-2 ring-blue-500 ring-offset-2 scale-110 shadow-lg' 
+                    : 'hover:ring-2 hover:ring-blue-300 hover:ring-offset-1 hover:scale-105'}`}
+            >
+            <img 
+              src={image} // ใช้ URL โดยตรง
+              alt={`${book.title} view ${index + 1}`}
+              className='w-full h-full object-cover'
+            />
+            {selectedImageIndex === index && (
+              <div className="absolute inset-0 bg-blue-500/10" />
+            )}
+          </button>
+        ))}
           </div>
 
           </div>

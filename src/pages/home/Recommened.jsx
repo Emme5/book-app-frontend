@@ -30,7 +30,7 @@ const Recommended = () => {
                 spaceBetween={0}
                 centeredSlides={false}
                 autoplay={{
-                    delay: 2500,
+                    delay: 4500,
                     disableOnInteraction: false,
                 }}
                 pagination={{

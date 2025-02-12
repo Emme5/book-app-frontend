@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import { useFetchBookByIdQuery } from "../../../redux/features/books/booksApi";
-import { getImgUrl } from "../../../utils/getImgUrl";
 import { useDispatch } from "react-redux";
 import { addToCart } from "../../../redux/features/cart/cartSlice";
 
@@ -27,7 +26,7 @@ function ModalBookDetail({ bookId, onClose }) {
 					{/* Left side - Image */}
 					<div className="w-full md:w-1/2">
 					<img
-						src={getImgUrl(bookDetail?.coverImage)}
+						src={bookDetail?.coverImage}
 						alt={bookDetail?.title}
 						className="w-full h-auto max-h-[40vh] md:max-h-full object-contain rounded-md"
 					/>

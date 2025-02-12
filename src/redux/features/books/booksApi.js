@@ -45,10 +45,9 @@ const booksApi = createApi({
 
 		addBook: builder.mutation({
 			query: (formData) => {
-				// Debug log
-				console.log('Sending FormData:');
-				for (let [key, value] of formData.entries()) {
-					console.log(key, ':', value);
+				const token = localStorage.getItem("token");
+				if (!token) {
+					throw new Error('No authentication token found');
 				}
 		
 				return {
@@ -56,11 +55,10 @@ const booksApi = createApi({
 					method: "POST",
 					body: formData,
 					formData: true,
-					// เพิ่ม credentials
 					credentials: 'include',
-					// ลบ headers ที่อาจขัดแย้งกับ FormData
 					headers: {
-						Authorization: `Bearer ${localStorage.getItem("token")}`,
+						'Authorization': `Bearer ${token}`,
+						// ไม่ต้องระบุ Content-Type เพราะ browser จะจัดการให้อัตโนมัติ
 					}
 				};
 			},

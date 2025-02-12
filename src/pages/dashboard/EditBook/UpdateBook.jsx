@@ -6,7 +6,7 @@ import { useParams } from 'react-router-dom';
 import Loading from '../../../components/Loading';
 import { useFetchBookByIdQuery, useUpdateBookMutation } from '../../../redux/features/books/booksApi';
 import Swal from 'sweetalert2';
-import { getImgUrl } from '../../../utils/getImgUrl';
+import { uploadImageToCloudinary } from '../../../utils/cloudinaryUpload';
 
 const UpdateBook = () => {
   const { id } = useParams();
@@ -68,38 +68,43 @@ const handleRemoveImage = (index, isExisting = false) => {
 
     const onSubmit = async (data) => {
       try {
-          const formData = new FormData();
-
-          // เพิ่มข้อมูลพื้นฐาน
-          Object.keys(data).forEach(key => {
-            if (key === 'trending') {
-                formData.append(key, data[key] || false);
-            } else {
-                formData.append(key, data[key]);
-            }
+        const formData = new FormData();
+    
+        // เพิ่มข้อมูลพื้นฐาน
+        Object.keys(data).forEach(key => {
+          if (key === 'trending') {
+            formData.append(key, data[key] || false);
+          } else {
+            formData.append(key, data[key]);
+          }
         });
 
-          if (newImages.length > 0) {
-            // ถ้ามีรูปใหม่
-            formData.append('coverImage', newImages[0]);
-            newImages.slice(1).forEach(file => {
-                formData.append('coverImages', file);
-            });
+    // กรณีมีรูปใหม่
+        if (newImages.length > 0) {
+          // อัปโหลดรูปใหม่ไปยัง Cloudinary
+          const uploadPromises = newImages.map(uploadImageToCloudinary);
+          const cloudinaryUrls = await Promise.all(uploadPromises);
+
+          formData.append('coverImage', cloudinaryUrls[0]);
+          cloudinaryUrls.slice(1).forEach(url => {
+            formData.append('coverImages', url);
+          });
         } else if (existingImages.length > 0) {
-            // ถ้ามีแค่รูปเดิม
-            existingImages.forEach((image, index) => {
-                if (index === 0) {
-                    formData.append('existingImages', image);
-                } else {
-                    formData.append('existingImages', image);
-                }
-            });
+          // ใช้ URL เดิมจาก Cloudinary
+          existingImages.forEach((image, index) => {
+            if (index === 0) {
+              formData.append('existingImages', image);
+            } else {
+              formData.append('existingImages', image);
+            }
+          });
         }
-          // ส่งข้อมูลไปอัพเดต
-          await updateBook({
-            id,
-            formData
-          }).unwrap();
+        
+        // ส่งข้อมูลไปอัพเดต
+        await updateBook({
+          id,
+          formData
+        }).unwrap();
           
           Swal.fire({
               title: "อัพเดทสำเร็จ",
@@ -200,12 +205,12 @@ const handleRemoveImage = (index, isExisting = false) => {
             {existingImages.map((image, index) => (
               <div key={`existing-${index}`} className="relative group">
                 <div className="aspect-w-3 aspect-h-4 overflow-hidden rounded-lg">
-                  <img 
-                    src={getImgUrl(image)}
-                    alt={`Existing ${index + 1}`}
-                    className="w-full h-full object-cover transform hover:scale-105 transition-transform duration-200"
-                  />
-                </div>
+                      <img 
+                        src={image} // ใช้ URL จาก Cloudinary
+                        alt={`Existing ${index + 1}`}
+                        className="w-full h-full object-cover transform hover:scale-105 transition-transform duration-200"
+                      />
+                    </div>
                 <button
                   type="button"
                   onClick={() => handleRemoveImage(index, true)}

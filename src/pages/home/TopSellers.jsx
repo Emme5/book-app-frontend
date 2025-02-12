@@ -66,7 +66,7 @@ const TopSellers = () => {
         slidesPerView={1}
         spaceBetween={30}
         autoplay={{
-          delay: 3000, // ตั้งค่าให้สไลด์ทุกๆ 3 วินาที
+          delay: 5000, // ตั้งค่าให้สไลด์ทุกๆ 3 วินาที
           disableOnInteraction: false, // ให้ autoplay ทำงานต่อหลังจากมีการเลื่อนด้วยตนเอง
         }}
         navigation={true}

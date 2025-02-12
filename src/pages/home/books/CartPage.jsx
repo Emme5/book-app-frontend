@@ -1,7 +1,6 @@
 import React from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { Link, useNavigate } from 'react-router-dom'
-import { getImgUrl } from '../../../utils/getImgUrl';
 import { clearCart, removeFromCart } from '../../../redux/features/cart/cartSlice';
 import Swal from 'sweetalert2';
 
@@ -68,7 +67,7 @@ const CartPage = () => {
                   <div className="h-24 w-24 flex-shrink-0 overflow-hidden rounded-md border border-gray-200">
                     <img
                       alt=""
-                      src={`${getImgUrl(product?.coverImage)}`}
+                      src={product?.coverImage}
                       className="h-full w-full object-cover object-center"
                     />
                   </div>
