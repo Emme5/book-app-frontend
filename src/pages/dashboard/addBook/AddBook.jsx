@@ -119,38 +119,44 @@ const AddBook = () => {
 
     return (
     <div className="max-w-lg mx-auto md:p-6 p-3 bg-white rounded-lg shadow-md">
-      <h2 className="text-2xl font-bold text-gray-800 mb-4">Add New Book</h2>
+      <h2 className="text-2xl font-bold text-gray-800 mb-4">เพิ่มหนังสือใหม่</h2>
 
       <form onSubmit={handleSubmit(onSubmit)} className=''>
             {/* Form fields... */}
           <InputField
-              label="Title"
+              label="ชื่อหนังสือ"
               name="title"
-              placeholder="Enter book title"
+              placeholder="กรอกชื่อหนังสือ"
               register={register}
           />
 
           <InputField
-              label="Description"
+              label="รายละเอียด"
               name="description"
-              placeholder="Enter book description"
+              placeholder="กรอกรายละเอียดหนังสือ"
               type="textarea"
               register={register}
           />
 
-        <SelectField
-          label="Category"
-          name="category"
-          options={[
-            { value: '', label: 'Choose A Category' },
-            { value: 'business', label: 'Business' },
-            { value: 'technology', label: 'Technology' },
-            { value: 'fiction', label: 'Fiction' },
-            { value: 'horror', label: 'Horror' },
-            { value: 'adventure', label: 'Adventure' },
-          ]}
-          register={register}
-        />
+            <SelectField
+            label="หมวดหมู่"
+            name="category"
+            options={[
+                { value: '', label: 'เลือกหมวดหมู่' },
+                { value: 'ธุรกิจ', label: 'ธุรกิจ' },
+                { value: 'จิตวิทยา', label: 'จิตวิทยา' },
+                { value: 'สยองขวัญ', label: 'สยองขวัญ' },
+                { value: 'ภาษา', label: 'ภาษา' },
+                { value: 'การ์ตูน', label: 'การ์ตูน' },
+                { value: 'คอมพิวเตอร์', label: 'คอมพิวเตอร์' },
+                { value: 'สุขภาพ', label: 'สุขภาพ' },
+                { value: 'มังงะ', label: 'มังงะ' },
+                { value: 'ดนตรี', label: 'ดนตรี' },
+                { value: 'ท่องเที่ยว', label: 'ท่องเที่ยว' },
+                { value: 'ประวัติศาสตร์', label: 'ประวัติศาสตร์' }
+            ]}
+            register={register}
+            />
 
         {/* Trending Checkbox */}
         <div className="mb-4">
@@ -160,25 +166,25 @@ const AddBook = () => {
               {...register('trending')}
               className="rounded text-blue-600 focus:ring focus:ring-offset-2 focus:ring-blue-500"
             />
-            <span className="ml-2 text-sm font-semibold text-gray-700">Trending</span>
+            <span className="ml-2 text-sm font-semibold text-gray-700">กำลังมาแรง</span>
           </label>
         </div>
 
         {/* Old Price */}
         <InputField
-          label="Old Price"
+          label="ราคาเดิม"
           name="oldPrice"
           type="number"
-          placeholder="Old Price"
+          placeholder="ราคาเดิม"
           register={register}
         />
 
         {/* New Price */}
         <InputField
-          label="New Price"
+          label="ราคาใหม่"
           name="newPrice"
           type="number"
-          placeholder="New Price"
+          placeholder="ราคาใหม่"
           register={register}
         />
 
@@ -240,7 +246,7 @@ const AddBook = () => {
                     type="submit" 
                     className="w-full py-2 bg-green-500 text-white font-bold rounded-md"
                 >
-                    {isLoading ? <span>Adding...</span> : <span>Add Book</span>}
+                    {isLoading ? <span>กำลังเพิ่ม...</span> : <span>เพิ่มหนังสือ</span>}
                 </button>
             </form>
         </div>

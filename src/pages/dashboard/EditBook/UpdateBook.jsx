@@ -128,34 +128,40 @@ const handleRemoveImage = (index, isExisting = false) => {
 
   return (
     <div className="max-w-lg mx-auto md:p-6 p-3 bg-white rounded-lg shadow-md">
-      <h2 className="text-2xl font-bold text-gray-800 mb-4">Update Book</h2>
+      <h2 className="text-2xl font-bold text-gray-800 mb-4">แก้ไขข้อมูลหนังสือ</h2>
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
         <InputField
-          label="Title"
+          label="ชื่อหนังสือ"
           name="title"
-          placeholder="Enter book title"
+          placeholder="กรอกชื่อหนังสือ"
           register={register}
         />
 
         <InputField
-          label="Description"
+          label="รายละเอียด"
           name="description"
-          placeholder="Enter book description"
+          placeholder="กรอกรายละเอียดหนังสือ"
           type="textarea"
           register={register}
         />
 
         <SelectField
-          label="Category"
+          label="หมวดหมู่"
           name="category"
           options={[
-            { value: '', label: 'Choose A Category' },
-            { value: 'business', label: 'Business' },
-            { value: 'technology', label: 'Technology' },
-            { value: 'fiction', label: 'Fiction' },
-            { value: 'horror', label: 'Horror' },
-            { value: 'adventure', label: 'Adventure' },
+            { value: '', label: 'เลือกหมวดหมู่' },
+            { value: 'ธุรกิจ', label: 'ธุรกิจ' },
+            { value: 'จิตวิทยา', label: 'จิตวิทยา' },
+            { value: 'สยองขวัญ', label: 'สยองขวัญ' },
+            { value: 'ภาษา', label: 'ภาษา' },
+            { value: 'การ์ตูน', label: 'การ์ตูน' },
+            { value: 'คอมพิวเตอร์', label: 'คอมพิวเตอร์' },
+            { value: 'สุขภาพ', label: 'สุขภาพ' },
+            { value: 'มังงะ', label: 'มังงะ' },
+            { value: 'ดนตรี', label: 'ดนตรี' },
+            { value: 'ท่องเที่ยว', label: 'ท่องเที่ยว' },
+            { value: 'ประวัติศาสตร์', label: 'ประวัติศาสตร์' }
           ]}
           register={register}
         />
@@ -167,23 +173,23 @@ const handleRemoveImage = (index, isExisting = false) => {
               {...register('trending')}
               className="rounded text-blue-600 focus:ring focus:ring-offset-2 focus:ring-blue-500"
             />
-            <span className="ml-2 text-sm font-semibold text-gray-700">Trending</span>
+            <span className="ml-2 text-sm font-semibold text-gray-700">กำลังมาแรง</span>
           </label>
         </div>
 
         <InputField
-          label="Old Price"
+          label="ราคาเดิม"
           name="oldPrice"
           type="number"
-          placeholder="Old Price"
+          placeholder="ราคาเดิม"
           register={register}
         />
 
         <InputField
-          label="New Price"
+          label="ราคาใหม่"
           name="newPrice"
           type="number"
-          placeholder="New Price"
+          placeholder="ราคาใหม่"
           register={register}
         />
 

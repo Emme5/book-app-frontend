@@ -79,12 +79,6 @@ function ModalBookDetail({ bookId, onClose }) {
 						>
 						เพิ่มลงตะกร้า
 						</button>
-						<button 
-						className="flex-1 bg-blue-500 text-white py-2 md:py-3 px-4 rounded 
-                           hover:bg-blue-600 transition-colors text-sm md:text-base"
-						>
-						ซื้อเลย
-						</button>
 						</div>
 					</div>
 				</div>
