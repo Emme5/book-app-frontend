@@ -129,7 +129,7 @@ const getStatusColor = (status) => {
                           <>
                             {/* ส่วนแสดงรูปภาพ */}
                             <img 
-                              src={`${import.meta.env.VITE_SERVER_URL}/uploads/${book.coverImage}`}
+                              src={book.coverImage} // ใช้ URL จาก Cloudinary โดยตรง
                               alt={book.title} 
                               className="w-20 h-24 object-cover rounded-md shadow-sm"
                               onError={(e) => {
@@ -157,15 +157,28 @@ const getStatusColor = (status) => {
                 </div>
               </div>
 
-              <div className='mt-6 pt-4 border-t border-gray-200'>
-                <div className="flex justify-between items-center">
+              <div className="flex flex-col sm:flex-row sm:justify-between items-start sm:items-center">
+                <div className="space-y-1 sm:space-y-0 sm:space-x-4">
                   <span className="text-gray-600">
-                    วันที่สั่งซื้อ: {order.createdAt ? new Date(order.createdAt).toLocaleDateString('th-TH') : '-'}
+                    วันที่: {order.createdAt ? 
+                      new Date(order.createdAt).toLocaleDateString('th-TH', {
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric'
+                      }) : '-'}
                   </span>
-                  <p className='text-xl font-bold text-gray-800'>
-                    ยอดรวม: ฿{order.totalPrice ? order.totalPrice.toLocaleString() : '0'}
-                  </p>
+                  <span className="text-gray-600">
+                    เวลา: {order.createdAt ? 
+                      new Date(order.createdAt).toLocaleTimeString('th-TH', {
+                        hour: '2-digit',
+                        minute: '2-digit',
+                        hour12: false
+                      }) : '-'} น.
+                  </span>
                 </div>
+                <p className='text-xl font-bold text-gray-800'>
+                  ยอดรวม: ฿{order.totalPrice ? order.totalPrice.toLocaleString() : '0'}
+                </p>
               </div>
             </div>
           ))}
