@@ -11,7 +11,7 @@ import { Trash2 } from 'lucide-react';
 
 const DeliveryStatus = () => {
   const { data: orders = [], isLoading, error } = useGetAllOrdersQuery();
-
+  const [updateStatus] = useUpdateOrderStatusMutation();
   const [searchTerm, setSearchTerm] = useState(''); // state สำหรับค้นหา
   const [filteredOrders, setFilteredOrders] = useState([]);
   const [deleteOrderMutation] = useDeleteOrderMutation();
@@ -90,14 +90,18 @@ const DeliveryStatus = () => {
       });
 
       if (result.isConfirmed) {
+        // แก้ไขการ update status
         const response = await updateStatus({ 
           orderId, 
           status: newStatus 
         }).unwrap();
   
-        if (response.error) {
-          throw new Error(response.error);
-        }
+        // อัพเดท filteredOrders เพื่อสะท้อนการเปลี่ยนแปลง
+        setFilteredOrders(prev => 
+          prev.map(order => 
+            order._id === orderId ? { ...order, status: newStatus } : order
+          )
+        );
   
         await Swal.fire({
           title: 'สำเร็จ!',
@@ -106,7 +110,7 @@ const DeliveryStatus = () => {
           timer: 1000
         });
         
-        eventEmitter.emit('orderStatusUpdated');
+        eventEmitter.emit('orderStatusUpdated')
       }
     } catch (error) {
       console.error('Error updating status:', error);
