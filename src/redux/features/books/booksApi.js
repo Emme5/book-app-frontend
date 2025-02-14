@@ -10,6 +10,7 @@ const baseQuery = fetchBaseQuery({
         if (token) {
             headers.set("Authorization", `Bearer ${token}`);
         }
+        headers.set("Content-Type", "application/json");
         return headers;
     },
 });
@@ -44,39 +45,26 @@ const booksApi = createApi({
         }),
 
 		addBook: builder.mutation({
-			query: (formData) => {
-				const token = localStorage.getItem("token");
-				if (!token) {
-					throw new Error('No authentication token found');
-				}
-		
-				return {
-					url: `/create-book`,
-					method: "POST",
-					body: formData,
-					formData: true,
-					credentials: 'include',
-					headers: {
-						'Authorization': `Bearer ${token}`,
-						// ไม่ต้องระบุ Content-Type เพราะ browser จะจัดการให้อัตโนมัติ
-					}
-				};
-			},
-			invalidatesTags: ["Books"],
-		}),
+            query: (formData) => ({
+                url: '/create-book', // ตรวจสอบ URL ให้ถูกต้อง
+                method: 'POST',
+                body: formData, // ส่ง FormData โดยตรง
+                // ไม่ต้องระบุ Content-Type เพราะ browser จะจัดการให้
+            }),
+            invalidatesTags: ['Books'] // invalidate cache หลังเพิ่มหนังสือ
+        }),
 
 		updateBook: builder.mutation({
-			query: ({ id, data }) => ({
-				url: `/update/${id}`,
-				method: 'PATCH',
-				body: data,
-				// สำคัญ: ไม่ใช้ Content-Type header เพื่อให้ browser จัดการ
-				headers: {
-					'Content-Type': 'multipart/form-data'
-				}
-			}),
-			invalidatesTags: ['Books']
-		}),
+            query: ({ id, data }) => {
+                console.log('Update Mutation Data:', data); // เพิ่ม log
+                return {
+                    url: `/update/${id}`,
+                    method: 'PATCH',
+                    body: data,
+                }
+            },
+            invalidatesTags: ['Books']
+        }),
 		
 		deleteBook: builder.mutation({
 			query: (id) => ({

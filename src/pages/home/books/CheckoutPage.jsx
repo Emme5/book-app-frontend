@@ -53,21 +53,16 @@ const CheckoutPage = () => {
 
     const createCheckoutSession = async (orderId, items) => {
         try {
-            const token = localStorage.getItem('token'); // เพิ่มการดึง token
-    
             const response = await fetch(`${import.meta.env.VITE_SERVER_URL}/api/create-checkout-session`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Accept': 'application/json',
-                    'Authorization': `Bearer ${token}` // เพิ่ม token ในส่วน headers
                 },
-                credentials: 'include',
                 body: JSON.stringify({
                     items: items.map(item => ({
                         id: item._id,
                         title: item.title,
-                        price: Math.round(Number(item.newPrice) * 100), // แปลงเป็นสตางค์
+                        price: Number(item.newPrice),
                         quantity: 1
                     })),
                     orderId
@@ -75,13 +70,13 @@ const CheckoutPage = () => {
             });
     
             if (!response.ok) {
-                const errorData = await response.json();
-                throw new Error(errorData.message || 'Failed to create checkout session');
+                const data = await response.json();
+                throw new Error(data.message || 'Failed to create checkout session');
             }
     
             return await response.json();
         } catch (error) {
-            console.error('Checkout session creation error:', error);
+            console.error('Checkout session error:', error);
             throw error;
         }
     };

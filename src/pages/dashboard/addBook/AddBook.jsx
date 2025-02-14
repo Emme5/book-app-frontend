@@ -8,10 +8,11 @@ import Swal from 'sweetalert2';
 
 const AddBook = () => {
     const { register, handleSubmit, formState: { errors }, reset } = useForm();
-    const [addBook, {isLoading, isError}] = useAddBookMutation()
+    const [addBook, {isLoading, isError}] = useAddBookMutation();
     const [imageFiles, setImageFiles] = useState([]);
     const [imageFileNames, setImageFileNames] = useState([]);
     const [imageUrls, setImageUrls] = useState([]);
+    
 
     const onSubmit = async (data) => {
         try {
