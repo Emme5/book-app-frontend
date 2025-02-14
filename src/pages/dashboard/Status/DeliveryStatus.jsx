@@ -3,7 +3,7 @@ import Swal from "sweetalert2";
 import { 
   useGetAllOrdersQuery, 
   useUpdateOrderStatusMutation,
-  useDeleteOrderMutation // เพิ่ม import
+  useDeleteOrderMutation 
 } from '../../../redux/features/order/ordersApi';
 import { HashLoader } from 'react-spinners';
 import eventEmitter from '../../../utils/eventEmitter';
@@ -15,6 +15,13 @@ const DeliveryStatus = () => {
   const [searchTerm, setSearchTerm] = useState(''); // state สำหรับค้นหา
   const [filteredOrders, setFilteredOrders] = useState([]);
   const [deleteOrderMutation] = useDeleteOrderMutation();
+  // สร้าง state สำหรับ dropdown ที่เปิด/ปิด
+  const [openOrderId, setOpenOrderId] = useState(null);
+
+  // ฟังก์ชันสำหรับเปิด/ปิด dropdown
+  const toggleOrderDetails = (orderId) => {
+    setOpenOrderId(prevId => prevId === orderId ? null : orderId);
+  };
 
   // สถานะที่เป็นไปได้ทั้งหมด
   const possibleStatuses = [
@@ -184,44 +191,79 @@ const DeliveryStatus = () => {
           </thead>
           <tbody className="divide-y divide-gray-200">
             {(filteredOrders || []).map((order) => (
-              <tr key={order._id}>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{order._id}</td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{order.name}</td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                  {order.productIds?.length} รายการ
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                  {order.createdAt ? new Date(order.createdAt).toLocaleDateString('th-TH') : '-'}
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <span className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusColor(order.status)}`}>
-                    {order.status || "รอดำเนินการ"}
-                  </span>
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                  <div className="flex items-center space-x-4">
-                    <select
-                      className="block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-                      onChange={(e) => handleStatusChange(e.target.value, order._id)}
-                      value={order.status || "รอดำเนินการ"}
+              <React.Fragment key={order._id}>
+                <tr>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 flex items-center">
+                    <button 
+                      onClick={() => toggleOrderDetails(order._id)}
+                      className="mr-2 text-blue-500 hover:text-blue-700"
                     >
-                      {possibleStatuses.map((status) => (
-                        <option key={status} value={status}>
-                          {status}
-                        </option>
-                      ))}
-                    </select>
-                    
-                    {/* ปุ่มลบ */}
-                    <button
-                      onClick={() => handleDeleteOrder(order._id)}
-                      className="text-red-600 hover:text-red-800 transition-colors"
-                    >
-                      <Trash2 size={20} />
+                      {openOrderId === order._id ? '🔽' : '📶'}
                     </button>
-                  </div>
-                </td>
-              </tr>
+                    {order._id}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{order.name}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    {order.productIds?.length} รายการ
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    {order.createdAt ? new Date(order.createdAt).toLocaleDateString('th-TH') : '-'}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <span className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusColor(order.status)}`}>
+                      {order.status || "รอดำเนินการ"}
+                    </span>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    <div className="flex items-center space-x-4">
+                      <select
+                        className="block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                        onChange={(e) => handleStatusChange(e.target.value, order._id)}
+                        value={order.status || "รอดำเนินการ"}
+                      >
+                        {possibleStatuses.map((status) => (
+                          <option key={status} value={status}>
+                            {status}
+                          </option>
+                        ))}
+                      </select>
+                      
+                      {/* ปุ่มลบ */}
+                      <button
+                        onClick={() => handleDeleteOrder(order._id)}
+                        className="text-red-600 hover:text-red-800 transition-colors"
+                      >
+                        <Trash2 size={20} />
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+                {openOrderId === order._id && (
+                  <tr>
+                    <td colSpan="6" className="bg-gray-50 p-4 border border-gray-200">
+                      <div className="grid grid-cols-2 gap-4">
+                        <div className="border-r border-gray-200 pr-4">
+                          <h4 className="font-semibold mb-2">ข้อมูลลูกค้า</h4>
+                          <p className='mb-3'>อีเมล: {order.email}</p>
+                          <p className='mb-3'>เบอร์โทร: {order.phone}</p>
+                          <p className='mb-3'>
+                            เวลาสั่งซื้อ: {order.createdAt ? 
+                              new Date(order.createdAt).toLocaleTimeString('th-TH', {
+                                hour: '2-digit',
+                                minute: '2-digit'
+                              }) : '-'}
+                          </p>
+                        </div>
+                        <div>
+                          <h4 className="font-semibold mb-2">ที่อยู่จัดส่ง</h4>
+                          <p className='mb-3'>{order.address.city}, {order.address.state}</p>
+                          <p className='mb-3'>{order.address.country}, {order.address.zipcode}</p>
+                        </div>
+                      </div>
+                    </td>
+                  </tr>
+                )}
+              </React.Fragment>
             ))}
           </tbody>
         </table>

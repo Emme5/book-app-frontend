@@ -24,67 +24,46 @@ const AddBook = () => {
                 });
                 return;
             }
-
-        const uploadPromises = imageFiles.map(async (file) => {
-            try {
-                return await uploadImageToCloudinary(file);
-            } catch (uploadError) {
-                console.error('Upload Error for file:', file.name, uploadError);
-                throw uploadError;
-            }
-        });
-
-        const cloudinaryUrls = await Promise.all(uploadPromises);
-        
-        // เก็บ URLs ของรูปภาพ
-        setImageUrls(cloudinaryUrls);
-
-        const formData = new FormData();
-
-        // เพิ่มไฟล์รูปภาพโดยตรง ไม่ใช้ URL
-        formData.append('coverImage', imageFiles[0]);
-        imageFiles.slice(1).forEach(file => {
-            formData.append('coverImages', file);
-        });
-
-        // ข้อมูลพื้นฐาน
-        formData.append('title', data.title);
-        formData.append('description', data.description);
-        formData.append('category', data.category);
-        formData.append('oldPrice', data.oldPrice);
-        formData.append('newPrice', data.newPrice);
-        formData.append('trending', data.trending ? 'true' : 'false');
-
-        // เพิ่มรูปภาพ
-        formData.append('coverImage', cloudinaryUrls[0]);
-        cloudinaryUrls.slice(1).forEach(url => {
-            formData.append('coverImages', url);
-        });
-
-        await addBook(formData).unwrap();
-
-        Swal.fire({
-            title: "สำเร็จ",
-            text: "เพิ่มหนังสือเรียบร้อยแล้ว",
-            icon: "success"
-        });
-
-        reset();
-        setImageFiles([]);
-        setImageFileNames([]);
-        
-    } catch (error) {
-        console.error('Full Error Object:', error);
-        console.error('Error Response:', error.response);
-        console.error('Error Data:', error.data);
-        
-        Swal.fire({
-            title: "เกิดข้อผิดพลาด",
-            text: error.response?.data?.message || error.message || "ไม่สามารถเพิ่มหนังสือได้ กรุณาลองใหม่อีกครั้ง",
-            icon: "error"
-        });
-    }
-};
+    
+            const formData = new FormData();
+    
+            // เพิ่มข้อมูลหนังสือ
+            formData.append('title', data.title);
+            formData.append('description', data.description);
+            formData.append('category', data.category);
+            formData.append('oldPrice', data.oldPrice);
+            formData.append('newPrice', data.newPrice);
+            formData.append('trending', data.trending ? 'true' : 'false');
+    
+            // เพิ่มรูปภาพ
+            formData.append('coverImage', imageFiles[0]);
+            imageFiles.slice(1).forEach((file, index) => {
+                formData.append('coverImages', file);
+            });
+    
+            const response = await addBook(formData).unwrap();
+    
+            Swal.fire({
+                title: "สำเร็จ",
+                text: "เพิ่มหนังสือเรียบร้อยแล้ว",
+                icon: "success"
+            });
+    
+            reset();
+            setImageFiles([]);
+            setImageFileNames([]);
+            setImageUrls([]);
+            
+        } catch (error) {
+            console.error('Full Error Object:', JSON.stringify(error, null, 2));
+            
+            Swal.fire({
+                title: "เกิดข้อผิดพลาด",
+                text: error.data?.message || error.message || "ไม่สามารถเพิ่มหนังสือได้ กรุณาลองใหม่อีกครั้ง",
+                icon: "error"
+            });
+        }
+    };
 
     const handleFileChange = (e) => {
         const files = Array.from(e.target.files);

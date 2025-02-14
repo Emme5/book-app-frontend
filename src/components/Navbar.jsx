@@ -20,31 +20,44 @@ const gradientAnimation = `
   }
 `;
 
-const navigation = [
-    { name: "เลือกซื้อ", href: "/book", icon: <FaBagShopping className="inline-block mr-2 text-2xl"/> },
-    { name: "Dashboard", href: "/dashboard", icon: <MdDashboard className="inline-block mr-2 text-2xl"/> },
-    { name: "Orders", href: "/orders", icon: <MdReceipt className="inline-block mr-2 text-2xl"/> },
-    { name: "Cart Page", href: "/cart", icon: <MdShoppingCart className="inline-block mr-2 text-2xl"/> },
-    { name: "Check Out", href: "/checkout", icon: <MdCheckCircle className="inline-block mr-2 text-2xl"/> },
-];
-
 const Navbar = () => {
-	const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-	const [isDrawerOpen, setIsDrawerOpen] = useState(false);
-	const cartItem = useSelector((state) => state.cart.cartItem);
-	const [searchTerm, setSearchTerm] = useState("");
-  	const navigate = useNavigate();
-	const { currentUser, logout } = useAuth();
-	const location = useLocation();
+    const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+    const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+    const cartItem = useSelector((state) => state.cart.cartItem);
+    const [searchTerm, setSearchTerm] = useState("");
+    const navigate = useNavigate();
+    const { currentUser, logout } = useAuth();
+    const location = useLocation();
 
-	useEffect(() => {
+    useEffect(() => {
         const style = document.createElement('style');
         style.textContent = gradientAnimation;
         document.head.appendChild(style);
         return () => document.head.removeChild(style);
     }, []);
 
-	const handleLogOut = () => {
+    const getNavigation = () => {
+        const baseNavigation = [
+            { name: "เลือกซื้อ", href: "/book", icon: <FaBagShopping className="inline-block mr-2 text-2xl"/> },
+            { name: "Orders", href: "/orders", icon: <MdReceipt className="inline-block mr-2 text-2xl"/> },
+            { name: "Cart Page", href: "/cart", icon: <MdShoppingCart className="inline-block mr-2 text-2xl"/> },
+            { name: "Check Out", href: "/checkout", icon: <MdCheckCircle className="inline-block mr-2 text-2xl"/> },
+        ];
+
+        if (currentUser?.role === 'admin') {
+            baseNavigation.splice(1, 0, { 
+                name: "Dashboard", 
+                href: "/dashboard", 
+                icon: <MdDashboard className="inline-block mr-2 text-2xl"/> 
+            });
+        }
+
+        return baseNavigation;
+    };
+
+    const navigation = getNavigation();
+
+    const handleLogOut = () => {
         Swal.fire({
             title: 'ยืนยันการออกจากระบบ',
             text: 'คุณแน่ใจหรือไม่ที่จะออกจากระบบ?',
@@ -68,14 +81,13 @@ const Navbar = () => {
         });
     };
 
-	const handleSearch = (e) => {
+    const handleSearch = (e) => {
         e.preventDefault();
         if (!searchTerm.trim()) return;
         navigate(`/search?q=${encodeURIComponent(searchTerm)}`);
     };
-	
 
-	useEffect(() => {
+    useEffect(() => {
         const closeDropdown = (e) => {
             if (isDropdownOpen && !e.target.closest('.dropdown-container')) {
                 setIsDropdownOpen(false);
@@ -84,7 +96,7 @@ const Navbar = () => {
         document.addEventListener('click', closeDropdown);
         return () => document.removeEventListener('click', closeDropdown);
     }, [isDropdownOpen]);
-
+    
 	return (
 		<header className="sticky top-0 z-50">
             {/* Animated gradient background */}

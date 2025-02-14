@@ -6,11 +6,10 @@ const baseQuery = fetchBaseQuery({
     credentials: "include",
     prepareHeaders: (headers) => {
         const token = localStorage.getItem("token");
-        console.log('Sending token:', token); // debug
         if (token) {
             headers.set("Authorization", `Bearer ${token}`);
         }
-        headers.set("Content-Type", "application/json");
+        // ลบ Content-Type สำหรับ FormData
         return headers;
     },
 });
@@ -45,26 +44,23 @@ const booksApi = createApi({
         }),
 
 		addBook: builder.mutation({
-            query: (formData) => ({
-                url: '/create-book', // ตรวจสอบ URL ให้ถูกต้อง
-                method: 'POST',
-                body: formData, // ส่ง FormData โดยตรง
-                // ไม่ต้องระบุ Content-Type เพราะ browser จะจัดการให้
-            }),
-            invalidatesTags: ['Books'] // invalidate cache หลังเพิ่มหนังสือ
-        }),
+			query: (formData) => ({
+				url: '/create-book',
+				method: 'POST',
+				body: formData,
+				// ไม่ใส่ headers เพื่อให้ browser จัดการ
+			}),
+			invalidatesTags: ['Books']
+		}),
 
 		updateBook: builder.mutation({
-            query: ({ id, data }) => {
-                console.log('Update Mutation Data:', data); // เพิ่ม log
-                return {
-                    url: `/update/${id}`,
-                    method: 'PATCH',
-                    body: data,
-                }
-            },
-            invalidatesTags: ['Books']
-        }),
+			query: ({ id, data }) => ({
+				url: `/edit/${id}`, // เปลี่ยนเป็น /edit และตรงกับ route ใน backend
+				method: 'PUT', // เปลี่ยนเป็น PUT
+				body: data,
+			}),
+			invalidatesTags: ['Books']
+		}),
 		
 		deleteBook: builder.mutation({
 			query: (id) => ({

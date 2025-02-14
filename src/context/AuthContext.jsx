@@ -16,19 +16,26 @@ export const useAuth = () => {
 };
 const googleProvider = new GoogleAuthProvider();
 
-// authProvider
 export const AuthProvider = ({ children }) => {
 	const [currentUser, setCurrentUser] = useState(null);
 	const [loading, setLoading] = useState(true);
 
-	// register a user
-	const registerUser = async (email, password) => {
-		return await createUserWithEmailAndPassword(auth, email, password);
+	const registerUser = async (email, password, role = 'user') => {
+		const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+		// เพิ่มการจัดการ role ที่นี่
+		return userCredential;
 	};
 
-	// login a user
 	const loginUser = async (email, password) => {
-		return await signInWithEmailAndPassword(auth, email, password);
+		const userCredential = await signInWithEmailAndPassword(auth, email, password);
+		
+		// สำหรับ admin login
+		if (email === 'admin@example.com') {
+			localStorage.setItem('token', await userCredential.user.getIdToken());
+			localStorage.setItem('role', 'admin');
+		}
+		
+		return userCredential;
 	};
 
 	// sing up with google
@@ -36,27 +43,37 @@ export const AuthProvider = ({ children }) => {
 		return await signInWithPopup(auth, googleProvider);
 	};
 
-	//logout the user
 	const logout = () => {
-        localStorage.removeItem('token'); //admin
+		localStorage.removeItem('token');
+		localStorage.removeItem('role');
 		return signOut(auth);
 	};
 
-
 	// manage the user
 	useEffect(() => {
-		const unsubscribe = onAuthStateChanged(auth, (user) => {
-			setCurrentUser(user);
-			setLoading(false);
-
+		const unsubscribe = onAuthStateChanged(auth, async (user) => {
 			if (user) {
 				const { email, displayName, photoURL } = user;
+				
+				// เพิ่มการกำหนด role
+				const role = email === 'admin@example.com' ? 'admin' : 'user';
+				
 				const userData = {
 					email,
 					username: displayName,
 					photo: photoURL,
+					role: role
 				};
+
+				setCurrentUser({
+					...user,
+					...userData
+				});
+			} else {
+				setCurrentUser(null);
 			}
+			
+			setLoading(false);
 		});
 
 		return () => unsubscribe();
@@ -70,5 +87,6 @@ export const AuthProvider = ({ children }) => {
 		signUpWithGoogle,
 		logout,
 	};
+
 	return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };
