@@ -66,62 +66,62 @@ const handleRemoveImage = (index, isExisting = false) => {
   }
 };
 
-    const onSubmit = async (data) => {
-      try {
-        const formData = new FormData();
-    
-        // เพิ่มข้อมูลพื้นฐาน
-        Object.keys(data).forEach(key => {
-          if (key === 'trending') {
-            formData.append(key, data[key] || false);
-          } else {
-            formData.append(key, data[key]);
-          }
-        });
+const onSubmit = async (data) => {
+  try {
+      // ตรวจสอบข้อมูลก่อนส่ง
+      const validData = {
+          title: data.title,
+          description: data.description,
+          category: data.category,
+          trending: data.trending || false,
+          oldPrice: data.oldPrice,
+          newPrice: data.newPrice
+      };
 
-    // กรณีมีรูปใหม่
-        if (newImages.length > 0) {
-          // อัปโหลดรูปใหม่ไปยัง Cloudinary
-          const uploadPromises = newImages.map(uploadImageToCloudinary);
-          const cloudinaryUrls = await Promise.all(uploadPromises);
+      const formData = new FormData();
+      Object.keys(validData).forEach(key => {
+          formData.append(key, validData[key]);
+      });
 
-          formData.append('coverImage', cloudinaryUrls[0]);
-          cloudinaryUrls.slice(1).forEach(url => {
-            formData.append('coverImages', url);
-          });
-        } else if (existingImages.length > 0) {
-          // ใช้ URL เดิมจาก Cloudinary
-          existingImages.forEach((image, index) => {
-            if (index === 0) {
-              formData.append('existingImages', image);
-            } else {
-              formData.append('existingImages', image);
-            }
-          });
-        }
+   // จัดการรูปภาพ
+   if (newImages.length > 0) {
+    const uploadPromises = newImages.map(uploadImageToCloudinary);
+    const cloudinaryUrls = await Promise.all(uploadPromises);
+
+    formData.append('coverImage', cloudinaryUrls[0]);
+    cloudinaryUrls.slice(1).forEach(url => {
+        formData.append('coverImages', url);
+    });
+} else if (existingImages.length > 0) {
+    existingImages.forEach((image, index) => {
+        formData.append(index === 0 ? 'coverImage' : 'coverImages', image);
+    });
+}
+
+// Debug: Log formData
+for (let pair of formData.entries()) {
+  console.log(pair[0] + ': ' + pair[1]);
+}
         
-        // ส่งข้อมูลไปอัพเดต
-        await updateBook({
-          id,
-          formData
-        }).unwrap();
-          
-          Swal.fire({
-              title: "อัพเดทสำเร็จ",
-              text: "อัพเดทข้อมูลหนังสือเรียบร้อยแล้ว!",
-              icon: "success"
-          });
-          
-          await refetch();
-      } catch (error) {
-          console.error('Error:', error);
-          Swal.fire({
-              title: "เกิดข้อผิดพลาด",
-              text: error.data?.message || "ไม่สามารถอัพเดทหนังสือได้ กรุณาลองใหม่อีกครั้ง",
-              icon: "error"
-          });
-      }
-  };
+const response = await updateBook({
+  id,
+  data: formData  // เปลี่ยนจาก formData เป็น data
+}).unwrap();
+
+Swal.fire({
+  title: "อัพเดทสำเร็จ",
+  text: "อัพเดทข้อมูลหนังสือเรียบร้อยแล้ว!",
+  icon: "success"
+});
+} catch (error) {
+console.error('Full Error:', error);
+Swal.fire({
+  title: "เกิดข้อผิดพลาด",
+  text: error.data?.message || JSON.stringify(error),
+  icon: "error"
+});
+}
+};
 
   if (isLoading) return <Loading />;
   if (isError) return <div>Error fetching book data</div>;

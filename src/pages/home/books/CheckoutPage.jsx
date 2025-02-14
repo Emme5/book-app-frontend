@@ -37,79 +37,110 @@ const CheckoutPage = () => {
                 navigate('/');
             });
         }
-    }, [cartItem, navigate]);
-      
-    const onSubmit = async (data) => {
-        setIsProcessing(true);
-        const newOrder = {
-            name: data.name,
-            email: currentUser?.email,
-            address: {
-                city: data.city,
-                country: data.country,
-                state: data.state,
-                zipcode: data.zipcode
-            },
-            phone: data.phone,
-            productIds: cartItem.map(item => item?._id),
-            totalPrice: totalPrice,
-        }
 
+        // Verify HTTPS
+        if (window.location.protocol !== 'https:' && process.env.NODE_ENV === 'production') {
+            Swal.fire({
+                title: "ความปลอดภัย",
+                text: "กรุณาใช้ HTTPS สำหรับการชำระเงิน",
+                icon: "warning",
+                confirmButtonText: "ตกลง",
+            }).then(() => {
+                window.location.href = window.location.href.replace('http:', 'https:');
+            });
+        }
+    }, [cartItem, navigate]);
+
+    const createCheckoutSession = async (orderId, items) => {
         try {
-            // 1. สร้าง order ก่อน
-            const order = await createOrder(newOrder).unwrap();
-            
-            if (!order?._id) {
-                throw new Error('ไม่สามารถสร้างออเดอร์ได้');
-            }
-            
-            // 2. สร้าง Stripe Checkout Session
+            const token = localStorage.getItem('token'); // เพิ่มการดึง token
+    
             const response = await fetch(`${import.meta.env.VITE_SERVER_URL}/api/create-checkout-session`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                     'Accept': 'application/json',
+                    'Authorization': `Bearer ${token}` // เพิ่ม token ในส่วน headers
                 },
                 credentials: 'include',
                 body: JSON.stringify({
-                    items: cartItem.map(item => ({
+                    items: items.map(item => ({
                         id: item._id,
                         title: item.title,
-                        price: Number(item.newPrice),
+                        price: Math.round(Number(item.newPrice) * 100), // แปลงเป็นสตางค์
                         quantity: 1
                     })),
-                    orderId: order._id
+                    orderId
                 }),
             });
-
+    
             if (!response.ok) {
-                throw new Error('Failed to create checkout session');
+                const errorData = await response.json();
+                throw new Error(errorData.message || 'Failed to create checkout session');
             }
-
-            const { sessionId } = await response.json();
-
-                // 3. Redirect ไปยัง Stripe Checkout
-                const stripe = await stripePromise;
-                const { error } = await stripe.redirectToCheckout({
-                    sessionId
-                });
-
-                if (error) {
-                    throw new Error(error.message);
-                }
-
-            } catch (err) {
-                console.error("Error:", err);
-                Swal.fire({
-                    title: "เกิดข้อผิดพลาด",
-                    text: "ไม่สามารถดำเนินการชำระเงินได้ กรุณาลองใหม่อีกครั้ง",
-                    icon: "error",
-                    confirmButtonText: "ตกลง",
-                });
-            } finally {
-                setIsProcessing(false);
+    
+            return await response.json();
+        } catch (error) {
+            console.error('Checkout session creation error:', error);
+            throw error;
+        }
+    };
+      
+    const onSubmit = async (data) => {
+        try {
+            setIsProcessing(true);
+    
+            if (!currentUser?.email) {
+                throw new Error('กรุณาเข้าสู่ระบบก่อนทำการสั่งซื้อ');
             }
-        };
+    
+            // สร้าง order
+            const newOrder = {
+                name: data.name,
+                email: currentUser.email,
+                address: {
+                    fullAddress: data.address,
+                    district: data.district,
+                    amphure: data.amphure,
+                    province: data.state,
+                    zipcode: data.zipcode
+                },
+                phone: data.phone,
+                productIds: cartItem.map(item => item._id),
+                totalPrice: totalPrice,
+                status: 'pending', // เพิ่มสถานะเริ่มต้น
+                paymentStatus: 'pending' // เพิ่มสถานะการชำระเงิน
+            };
+    
+            const order = await createOrder(newOrder).unwrap();
+            
+            if (!order?._id) {
+                throw new Error('ไม่สามารถสร้างออเดอร์ได้');
+            }
+    
+            // สร้าง Stripe checkout session
+            const { sessionId } = await createCheckoutSession(order._id, cartItem);
+    
+            // Redirect ไปยัง Stripe checkout
+            const stripe = await stripePromise;
+            const { error } = await stripe.redirectToCheckout({ sessionId });
+    
+            if (error) {
+                throw error;
+            }
+    
+        } catch (err) {
+            console.error("Error:", err);
+            Swal.fire({
+                title: "เกิดข้อผิดพลาด",
+                text: err.message || "ไม่สามารถดำเนินการชำระเงินได้ กรุณาลองใหม่อีกครั้ง",
+                icon: "error",
+                confirmButtonText: "ตกลง",
+            });
+        } finally {
+            setIsProcessing(false);
+        }
+    };
 
   return (
     <section>
@@ -191,20 +222,35 @@ const CheckoutPage = () => {
                                 </div>
 
                                 <div className="grid grid-cols-2 gap-4">
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-700 mb-1">
-                                            ตำบล/แขวง
-                                        </label>
-                                        <input
-                                            {...register("city", { required: "กรุณากรอกตำบล" })}
-                                            className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                                        />
-                                        {errors.city && (
-                                            <p className="mt-1 text-sm text-red-600">{errors.city.message}</p>
-                                        )}
-                                    </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                                        ตำบล/แขวง
+                                    </label>
+                                    <input
+                                        {...register("district", { required: "กรุณากรอกตำบล/แขวง" })}
+                                        className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                    />
+                                    {errors.district && (
+                                        <p className="mt-1 text-sm text-red-600">{errors.district.message}</p>
+                                    )}
+                                </div>
 
-                                    <div>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                                        อำเภอ/เขต
+                                    </label>
+                                    <input
+                                        {...register("amphure", { required: "กรุณากรอกอำเภอ/เขต" })}
+                                        className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                    />
+                                    {errors.amphure && (
+                                        <p className="mt-1 text-sm text-red-600">{errors.amphure.message}</p>
+                                    )}
+                                </div>
+                            </div>
+
+                                <div className="grid grid-cols-2 gap-4">
+                                <div>
                                         <label className="block text-sm font-medium text-gray-700 mb-1">
                                             จังหวัด
                                         </label>
@@ -215,23 +261,7 @@ const CheckoutPage = () => {
                                         {errors.state && (
                                             <p className="mt-1 text-sm text-red-600">{errors.state.message}</p>
                                         )}
-                                    </div>
                                 </div>
-
-                                <div className="grid grid-cols-2 gap-4">
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-700 mb-1">
-                                            อำเภอเมือง
-                                        </label>
-                                        <input
-                                            {...register("city", { required: "กรุณากรอกอำเภอเมือง" })}
-                                            className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                                        />
-                                        {errors.country && (
-                                            <p className="mt-1 text-sm text-red-600">{errors.country.message}</p>
-                                        )}
-                                    </div>
-
                                     <div>
                                         <label className="block text-sm font-medium text-gray-700 mb-1">
                                             รหัสไปรษณีย์

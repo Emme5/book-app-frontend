@@ -1,6 +1,7 @@
 import React from 'react'
 import { useDeleteBookMutation, useFetchAllBooksQuery } from '../../../redux/features/books/booksApi';
 import { Link, useNavigate } from 'react-router-dom';
+import Swal from "sweetalert2";
 
 const ManageBooks = () => {
     const navigate = useNavigate();
@@ -13,12 +14,22 @@ const ManageBooks = () => {
     const handleDeleteBook = async (id) => {
         try {
             await deleteBook(id).unwrap();
-            alert('Book deleted successfully!');
-            refetch();
-
+            // เพิ่ม Swal แทน alert
+            Swal.fire({
+                title: 'ลบสำเร็จ!',
+                text: 'หนังสือถูกลบเรียบร้อยแล้ว',
+                icon: 'success',
+                timer: 1500
+            });
+            // เปลี่ยนจาก refetch เป็น invalidation tags
+            // refetch();
         } catch (error) {
-            console.error('Error details:', error.message);
-            alert('Failed to delete book. Please try again.');
+            console.error('Error details:', error);
+            Swal.fire({
+                title: 'เกิดข้อผิดพลาด!',
+                text: error.message || 'ไม่สามารถลบหนังสือได้',
+                icon: 'error'
+            });
         }
     };
 

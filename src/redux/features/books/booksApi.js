@@ -66,24 +66,16 @@ const booksApi = createApi({
 		}),
 
 		updateBook: builder.mutation({
-			query: ({ id, formData }) => {
-				// Debug log เพื่อตรวจสอบข้อมูลที่ส่ง
-				console.log('Updating book:', id);
-				for (let [key, value] of formData.entries()) {
-					console.log(key, value);
+			query: ({ id, data }) => ({
+				url: `/update/${id}`,
+				method: 'PATCH',
+				body: data,
+				// สำคัญ: ไม่ใช้ Content-Type header เพื่อให้ browser จัดการ
+				headers: {
+					'Content-Type': 'multipart/form-data'
 				}
-
-				return {
-					url: `/edit/${id}`,
-					method: "PUT",
-					body: formData,
-					formData: true,
-				};
-			},
-			invalidatesTags: (result, error, { id }) => [
-				{ type: "Books", id },
-				"Books"
-			],
+			}),
+			invalidatesTags: ['Books']
 		}),
 		
 		deleteBook: builder.mutation({
