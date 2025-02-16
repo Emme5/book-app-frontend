@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { FaGoogle , FaEye, FaEyeSlash } from "react-icons/fa";
 import { useForm } from "react-hook-form"
 import { useAuth } from '../context/AuthContext';
+import Swal from 'sweetalert2';
 
 const Login = () => {
     const [message, setMessage] = useState("")
@@ -33,10 +34,40 @@ const Login = () => {
     const onSubmit = async (data) => {
         try {
             await loginUser(data.email, data.password);
-            alert("ล็อกอินสำเร็จแล้ว");
-            navigate("/");
+            Swal.fire({
+                toast: true,
+                position: 'center',
+                icon: 'success',
+                title: 'ล็อกอินสำเร็จ',
+                text: 'ยินดีต้อนรับเข้าสู่ระบบ',
+                showConfirmButton: false,
+                timer: 2000,
+                timerProgressBar: true,
+                customClass: {
+                    popup: 'colored-toast'
+                },
+                background: '#D4EDDA',
+                color: '#155724'
+            }).then(() => {
+                navigate("/");
+            });
         } catch (error) {
             setMessage("อีเมลหรือรหัสผ่านไม่ถูกต้อง");
+            Swal.fire({
+                toast: true,
+                position: 'center',
+                icon: 'error',
+                title: 'เกิดข้อผิดพลาด',
+                text: 'อีเมลหรือรหัสผ่านไม่ถูกต้อง',
+                showConfirmButton: false,
+                timer: 2000,
+                timerProgressBar: true,
+                customClass: {
+                    popup: 'colored-toast'
+                },
+                background: '#F8D7DA',
+                color: '#721C24'
+            });
             console.error(error);
         }
     };
@@ -44,10 +75,39 @@ const Login = () => {
     const handleGoogleSignIn = async () => {
         try {
             await signUpWithGoogle();
-            alert("ล็อกอินสำเร็จแล้ว");
-            navigate("/");
+            Swal.fire({
+                toast: true,
+                position: 'center',
+                icon: 'success',
+                title: 'ล็อกอินสำเร็จ',
+                text: 'ยินดีต้อนรับเข้าสู่ระบบ',
+                showConfirmButton: false,
+                timer: 2000,
+                timerProgressBar: true,
+                customClass: {
+                    popup: 'colored-toast'
+                },
+                background: '#D4EDDA',
+                color: '#155724'
+            }).then(() => {
+                navigate("/");
+            });
         } catch (error) {
-            alert("ไม่สามารถล็อกอินได้");
+            Swal.fire({
+                toast: true,
+                position: 'center',
+                icon: 'error',
+                title: 'เกิดข้อผิดพลาด',
+                text: 'ไม่สามารถล็อกอินได้ กรุณาลองใหม่อีกครั้ง',
+                showConfirmButton: false,
+                timer: 2000,
+                timerProgressBar: true,
+                customClass: {
+                    popup: 'colored-toast'
+                },
+                background: '#F8D7DA',
+                color: '#721C24'
+            });
             console.error(error);
         }
     };

@@ -89,6 +89,10 @@ const router = createBrowserRouter([
 				element: <Book />,
 				errorElement: <ErrorBoundary />,
 			},
+			{
+				path: "/search",
+				element: <Book />
+			},
 		],
 	},
 	{

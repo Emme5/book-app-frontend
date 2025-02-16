@@ -196,7 +196,7 @@ const DeliveryStatus = () => {
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 flex items-center">
                     <button 
                       onClick={() => toggleOrderDetails(order._id)}
-                      className="mr-2 text-blue-500 hover:text-blue-700"
+                      className="mr-3"
                     >
                       {openOrderId === order._id ? '🔽' : '📶'}
                     </button>

@@ -9,7 +9,6 @@ import { useFetchAllBooksQuery } from '../../redux/features/books/booksApi';
 
 
 const Recommended = () => {
-    
     const progressCircle = useRef(null);
     const progressContent = useRef(null);
 
@@ -22,13 +21,34 @@ const Recommended = () => {
 
     const { data: books = [] } = useFetchAllBooksQuery();
 
+    // กรองเฉพาะหนังสือที่มี recommended=true
+    const recommendedBooks = books.filter(book => book.recommended === true)
+
+const createSlides = () => {
+    const slides = [];
+    // เปลี่ยนจาก books เป็น recommendedBooks
+    for (let i = 0; i < recommendedBooks.length; i += 6) {
+        const slideBooks = recommendedBooks.slice(i, i + 6);
+        const firstRow = slideBooks.slice(0, 3);
+        const secondRow = slideBooks.slice(3, 6);
+        
+        if (firstRow.length > 0) {
+            slides.push({
+                firstRow,
+                secondRow: secondRow.length > 0 ? secondRow : []
+            });
+        }
+    }
+    return slides;
+};
+
     return (
         <div className="py-10">
             <h2 className="text-4xl font-semibold mb-5">แนะนำสำหรับคุณ</h2>
 
             <Swiper
-                spaceBetween={0}
-                centeredSlides={false}
+                slidesPerView={1}
+                spaceBetween={30}
                 autoplay={{
                     delay: 4500,
                     disableOnInteraction: false,
@@ -37,19 +57,32 @@ const Recommended = () => {
                     clickable: true,
                 }}
                 navigation={true}
-                breakpoints={{
-                    640: { slidesPerView: 1, spaceBetween: 20 },
-                    768: { slidesPerView: 2, spaceBetween: 40 },
-                    1024: { slidesPerView: 2, spaceBetween: 50 },
-                    1180: { slidesPerView: 3, spaceBetween: 50 },
-                }}
                 modules={[Navigation, Autoplay]}
                 onAutoplayTimeLeft={onAutoplayTimeLeft}
                 className="mySwiper"
             >
-                {books.map((book, index) => (
-                    <SwiperSlide key={index}>
-                        <BookCard book={book} />
+                {createSlides().map((slide, slideIndex) => (
+                    <SwiperSlide key={slideIndex}>
+                        <div className="flex flex-col gap-6">
+                            {/* แถวที่ 1 */}
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                                {slide.firstRow.map((book, index) => (
+                                    <div key={index} className="w-full h-full">
+                                        <BookCard book={book} />
+                                    </div>
+                                ))}
+                            </div>
+                            {/* แถวที่ 2 */}
+                            {slide.secondRow.length > 0 && (
+                                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                                    {slide.secondRow.map((book, index) => (
+                                        <div key={index} className="w-full h-full">
+                                            <BookCard book={book} />
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
                     </SwiperSlide>
                 ))}
             </Swiper>

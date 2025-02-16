@@ -26,18 +26,54 @@ const CartPage = () => {
 
     const handleCheckout = () => {
       if (cartItem.length === 0) {
-          // แสดง Sweetalert2 popup
           Swal.fire({
-              title: "ไม่พบสินค้าในตะกร้า",
-              text: "กรุณาเพิ่มสินค้าในตะกร้าก่อนดำเนินการต่อ",
-              icon: "warning",
-              confirmButtonText: "ตกลง",
-              confirmButtonColor: "#4F46E5", // สีปุ่มตามสี indigo-600
+              toast: true,
+              position: 'center',
+              icon: 'warning',
+              title: 'ตะกร้าว่างเปล่า',
+              text: 'กรุณาเพิ่มสินค้าในตะกร้าก่อนดำเนินการต่อ',
+              showConfirmButton: false,
+              timer: 3000,
+              timerProgressBar: true,
+              customClass: {
+                  popup: 'colored-toast'
+              },
+              background: '#FFF3CD',
+              color: '#856404'
           });
       } else {
           navigate('/checkout');
       }
   }
+
+  const style = document.createElement('style');
+  style.textContent = `
+      .colored-toast.swal2-icon-warning {
+          border-left: 4px solid #FFC107 !important;
+      }
+      .colored-toast {
+          padding: 1.5rem !important;  /* เพิ่ม padding */
+          box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06) !important;
+      }
+      .large-toast {
+          width: 400px !important;     /* กำหนดความกว้าง */
+          max-width: 90vw !important;  /* รองรับหน้าจอมือถือ */
+      }
+      .colored-toast .swal2-title {
+          margin: 0 0 0.5rem !important;
+          font-size: 1.25rem !important;  /* เพิ่มขนาดตัวอักษรหัวข้อ */
+      }
+      .colored-toast .swal2-content {
+          margin: 0 !important;
+          font-size: 1rem !important;     /* เพิ่มขนาดตัวอักษรเนื้อหา */
+      }
+      .colored-toast .swal2-icon {
+          margin: 1.5rem auto !important;  /* ปรับระยะห่างไอคอน */
+          width: 3em !important;           /* ขนาดไอคอน */
+          height: 3em !important;
+      }
+  `;
+  document.head.appendChild(style);
 
   return (
     <>
@@ -128,7 +164,7 @@ const CartPage = () => {
           <button
             type="button"
             className="font-medium text-indigo-600 hover:text-indigo-500 ml-1">
-              Continue Shopping / ช้อปปิ้งต่อ <span aria-hidden="true"> &rarr;</span>
+               ไปช้อปปิ้งต่อ <span aria-hidden="true"> →</span>
           </button>
         </Link>
       </div>

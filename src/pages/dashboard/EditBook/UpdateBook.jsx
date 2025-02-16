@@ -6,8 +6,10 @@ import { useParams } from 'react-router-dom';
 import Loading from '../../../components/Loading';
 import { useFetchBookByIdQuery, useUpdateBookMutation } from '../../../redux/features/books/booksApi';
 import Swal from 'sweetalert2';
+import { useNavigate } from 'react-router-dom';
 
 const UpdateBook = () => {
+  const navigate = useNavigate();
   const { id } = useParams();
   const { data: bookData, isLoading, isError } = useFetchBookByIdQuery(id);
   const [updateBook] = useUpdateBookMutation();
@@ -16,9 +18,11 @@ const UpdateBook = () => {
   useEffect(() => {
     if (bookData) {
       setValue('title', bookData.title);
+      setValue('author', bookData.author);
       setValue('description', bookData.description);
       setValue('category', bookData?.category);
       setValue('trending', bookData.trending);
+      setValue('recommended', bookData.recommended); // เพิ่ม recommended
       setValue('oldPrice', bookData.oldPrice);
       setValue('newPrice', bookData.newPrice);
     }
@@ -26,17 +30,16 @@ const UpdateBook = () => {
 
   const onSubmit = async (data) => {
     try {
-        const updateData = {
-            title: data.title,
-            description: data.description,
-            category: data.category,
-            trending: Boolean(data.trending),
-            oldPrice: Number(data.oldPrice),
-            newPrice: Number(data.newPrice),
-        };
-
-        console.log('Sending update data:', JSON.stringify(updateData)); // แปลงเป็น JSON string
-        console.log('Book ID:', id);
+      const updateData = {
+          title: data.title,
+          author: data.author,
+          description: data.description,
+          category: data.category,
+          trending: Boolean(data.trending),
+          recommended: Boolean(data.recommended),
+          oldPrice: Number(data.oldPrice),
+          newPrice: Number(data.newPrice),
+      };
 
         const token = localStorage.getItem('token');
         if (!token) {
@@ -44,15 +47,18 @@ const UpdateBook = () => {
         }
 
         const response = await updateBook({
-            id, 
-            data: updateData
-        }).unwrap();
+          id, 
+          data: updateData
+      }).unwrap();
 
         Swal.fire({
             title: "อัพเดทสำเร็จ",
             text: "อัพเดทข้อมูลหนังสือเรียบร้อยแล้ว!",
             icon: "success"
+        }).then(() => {
+            navigate('/dashboard/manage-books'); // เพิ่ม navigation หลัง Swal
         });
+        
     } catch (error) {
         console.error('Update Error Full:', error);
         console.error('Error Details:', JSON.stringify(error, null, 2));
@@ -101,12 +107,22 @@ const UpdateBook = () => {
         />
 
         <InputField
-          label="รายละเอียด"
-          name="description"
-          placeholder="กรอกรายละเอียดหนังสือ"
-          type="textarea"
+          label="ชื่อผู้แต่ง/สำนักพิมพ์"
+          name="author"
+          placeholder="กรอกชื่อผู้แต่งหรือสำนักพิมพ์"
           register={register}
         />
+
+        <div className="mb-4">
+          <label className="block text-sm font-semibold text-gray-700 mb-2">
+            รายละเอียด
+          </label>
+          <textarea
+            {...register('description')}
+            placeholder="กรอกรายละเอียดหนังสือ"
+            className="w-full p-2 border rounded-md resize-y min-h-[100px]"
+          />
+        </div>
 
         <SelectField
           label="หมวดหมู่"
@@ -128,15 +144,31 @@ const UpdateBook = () => {
           register={register}
         />
 
-        <div className="mb-4">
+        {/* ปรับส่วน Checkbox ให้มีทั้ง trending และ recommended */}
+        <div className="mb-4 space-y-2">
           <label className="inline-flex items-center cursor-pointer">
             <input
               type="checkbox"
               {...register('trending')}
               className="rounded text-blue-600 focus:ring focus:ring-offset-2 focus:ring-blue-500"
             />
-            <span className="ml-2 text-sm font-semibold text-gray-700">กำลังมาแรง</span>
+            <span className="ml-2 text-sm font-semibold text-gray-700">
+              กำลังมาแรง (แสดงในหน้า TopSeller)
+            </span>
           </label>
+
+          <div className="block">
+            <label className="inline-flex items-center cursor-pointer">
+              <input
+                type="checkbox"
+                {...register('recommended')}
+                className="rounded text-blue-600 focus:ring focus:ring-offset-2 focus:ring-blue-500"
+              />
+              <span className="ml-2 text-sm font-semibold text-gray-700">
+                แนะนำ (แสดงในหน้า Recommended)
+              </span>
+            </label>
+          </div>
         </div>
 
         <InputField

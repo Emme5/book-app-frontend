@@ -1,10 +1,12 @@
 import React, { useState } from 'react'
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { FaGoogle, FaEye, FaEyeSlash, FaCheckCircle, FaTimesCircle } from "react-icons/fa";
 import { useForm } from "react-hook-form"
 import { useAuth } from '../context/AuthContext';
+import Swal from 'sweetalert2';
 
 const Register = () => {
+  const navigate = useNavigate();
   const [message, setMessage] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -53,9 +55,40 @@ const Register = () => {
     const handleGoogleSignIn = async () => {
       try {
         await signUpWithGoogle();
-        alert("ล็อกอินสำเร็จแล้ว");
+        // แทนที่ alert ด้วย Sweetalert2
+        Swal.fire({
+          toast: true,
+          position: 'center',
+          icon: 'success',
+          title: 'ล็อกอินสำเร็จ',
+          text: 'ยินดีต้อนรับเข้าสู่ระบบ',
+          showConfirmButton: false,
+          timer: 2000,
+          timerProgressBar: true,
+          customClass: {
+            popup: 'colored-toast'
+          },
+          background: '#D4EDDA',
+          color: '#155724'
+        }).then(() => {
+          navigate('/'); // นำทางไปหน้าหลักหลังจาก alert หาย
+        });
       } catch (error) {
-        alert("ไม่สามารถล็อกอินได้");
+        Swal.fire({
+          toast: true,
+          position: 'center',
+          icon: 'error',
+          title: 'เกิดข้อผิดพลาด',
+          text: 'ไม่สามารถล็อกอินได้ กรุณาลองใหม่อีกครั้ง',
+          showConfirmButton: false,
+          timer: 2000,
+          timerProgressBar: true,
+          customClass: {
+            popup: 'colored-toast'
+          },
+          background: '#F8D7DA',
+          color: '#721C24'
+        });
         console.error(error);
       }
     };

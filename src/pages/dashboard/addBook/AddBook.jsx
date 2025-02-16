@@ -7,7 +7,19 @@ import { uploadImageToCloudinary } from '../../../utils/cloudinaryUpload';
 import Swal from 'sweetalert2';
 
 const AddBook = () => {
-    const { register, handleSubmit, formState: { errors }, reset } = useForm();
+    const { register, handleSubmit, formState: { errors }, reset } = useForm({
+        defaultValues: {
+            title: '',
+            author: '',
+            description: '',
+            category: '',
+            oldPrice: '',
+            newPrice: '',
+            trending: false,
+            recommended: false
+        }
+    });
+
     const [addBook, {isLoading, isError}] = useAddBookMutation();
     const [imageFiles, setImageFiles] = useState([]);
     const [imageFileNames, setImageFileNames] = useState([]);
@@ -29,11 +41,13 @@ const AddBook = () => {
     
             // เพิ่มข้อมูลหนังสือ
             formData.append('title', data.title);
+            formData.append('author', data.author);
             formData.append('description', data.description);
             formData.append('category', data.category);
             formData.append('oldPrice', data.oldPrice);
             formData.append('newPrice', data.newPrice);
             formData.append('trending', data.trending ? 'true' : 'false');
+            formData.append('recommended', data.recommended ? 'true' : 'false'); // เพิ่ม recommended
     
             // เพิ่มรูปภาพ
             formData.append('coverImage', imageFiles[0]);
@@ -68,11 +82,12 @@ const AddBook = () => {
     const handleFileChange = (e) => {
         const files = Array.from(e.target.files);
         const maxSize = 5 * 1024 * 1024; // 5MB
+        const maxFiles = 5 - imageFiles.length; // จำนวนไฟล์ที่สามารถเพิ่มได้
 
-        if (files.length + imageFiles.length > 5) {
+        if (files.length > maxFiles) {
             Swal.fire({
-                title: "จำกัดรูปภาพ",
-                text: "คุณสามารถอัพโหลดรูปได้สูงสุด 5 รูป",
+                title: "เกินจำนวนที่กำหนด",
+                text: `คุณสามารถเพิ่มได้อีก ${maxFiles} รูป`,
                 icon: "warning"
             });
             return;
@@ -110,14 +125,24 @@ const AddBook = () => {
               register={register}
           />
 
-          <InputField
-              label="รายละเอียด"
-              name="description"
-              placeholder="กรอกรายละเอียดหนังสือ"
-              type="textarea"
-              register={register}
-          />
+            <InputField
+                label="ชื่อผู้แต่ง/สำนักพิมพ์"
+                name="author"
+                placeholder="กรอกชื่อผู้แต่งหรือสำนักพิมพ์"
+                register={register}
+            />
 
+          {/* ปรับส่วนของ textarea */}
+        <div className="mb-4">
+            <label className="block text-sm font-semibold text-gray-700 mb-2">
+                รายละเอียด
+            </label>
+            <textarea
+                {...register('description')}
+                placeholder="กรอกรายละเอียดหนังสือ"
+                className="w-full p-2 border rounded-md resize-y min-h-[100px]"
+            />
+        </div>
             <SelectField
             label="หมวดหมู่"
             name="category"
@@ -139,15 +164,24 @@ const AddBook = () => {
             />
 
         {/* Trending Checkbox */}
-        <div className="mb-4">
-          <label className="inline-flex items-center">
-            <input
-              type="checkbox"
-              {...register('trending')}
-              className="rounded text-blue-600 focus:ring focus:ring-offset-2 focus:ring-blue-500"
-            />
-            <span className="ml-2 text-sm font-semibold text-gray-700">กำลังมาแรง</span>
-          </label>
+        <div className="mb-4 space-y-2">
+            <label className="inline-flex items-center">
+                <input
+                    type="checkbox"
+                    {...register('trending')}
+                    className="rounded text-blue-600 focus:ring focus:ring-offset-2 focus:ring-blue-500"
+                />
+                <span className="ml-2 text-sm font-semibold text-gray-700">กำลังมาแรง (แสดงในหน้า ขายดี)</span>
+            </label>
+            
+            <label className="inline-flex items-center">
+                <input
+                    type="checkbox"
+                    {...register('recommended')}
+                    className="ml-2 rounded text-blue-600 focus:ring focus:ring-offset-2 focus:ring-blue-500"
+                />
+                <span className="ml-2 text-sm font-semibold text-gray-700">แนะนำ (แสดงในหน้า แนะนำ)</span>
+            </label>
         </div>
 
         {/* Old Price */}

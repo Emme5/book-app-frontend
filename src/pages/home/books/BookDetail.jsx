@@ -1,17 +1,24 @@
 import React, { useEffect, useState } from 'react'
 import { FiShoppingCart } from 'react-icons/fi'
-import { useParams } from 'react-router-dom'
+import { useParams, useNavigate } from 'react-router-dom'
 import { useDispatch } from 'react-redux';
 import { addToCart } from '../../../redux/features/cart/cartSlice';
 import { useFetchBookByIdQuery } from '../../../redux/features/books/booksApi';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 
-
 const BookDetail = () => {
+  const navigate = useNavigate();
   const { id } = useParams();
   const { data: book, isLoading, isError } = useFetchBookByIdQuery(id);
   const [selectedImageIndex, setSelectedImageIndex] = useState(-1);
   const dispatch = useDispatch();
+
+  const handleBuyNow = (product) => {
+    // เพิ่มสินค้าลงตะกร้าก่อน
+    dispatch(addToCart(product));
+    // นำทางไปหน้า checkout
+    navigate('/checkout');
+  };
 
   const handlePrevImage = () => {
     if (selectedImageIndex === -1) {
@@ -94,47 +101,47 @@ const BookDetail = () => {
             {/* รูปย่อยด้านล่าง */}
             <div className="grid grid-cols-4 sm:grid-cols-5 gap-2 px-4 pb-4">
 
-            {/* รูปเพิ่มเติม */}
-            {book.coverImages?.map((image, index) => (
-            <button 
-              key={index}
-              onClick={() => setSelectedImageIndex(index)}
-              className={`relative min-w-[80px] w-20 h-20 rounded-lg overflow-hidden transition-all duration-300
-                  ${selectedImageIndex === -1 
-                    ? 'ring-2 ring-blue-500 ring-offset-2 scale-110 shadow-lg' 
-                    : 'hover:ring-2 hover:ring-blue-300 hover:ring-offset-1 hover:scale-105'}`}
-            >
-            <img 
-              src={image} // ใช้ URL โดยตรง
-              alt={`${book.title} view ${index + 1}`}
-              className='w-full h-full object-cover'
-            />
-            {selectedImageIndex === index && (
-              <div className="absolute inset-0 bg-blue-500/10" />
-            )}
-          </button>
-        ))}
-          </div>
-
+                {book.coverImages?.map((image, index) => (
+                    <button 
+                        key={index}
+                        onClick={() => setSelectedImageIndex(index)}
+                        className={`relative min-w-[80px] w-20 h-20 rounded-lg overflow-hidden transition-all duration-300
+                            ${selectedImageIndex === index 
+                                ? 'ring-2 ring-blue-500 ring-offset-2 scale-110 shadow-lg' 
+                                : 'hover:ring-2 hover:ring-blue-300 hover:ring-offset-1 hover:scale-105'}`}
+                        onMouseEnter={() => setSelectedImageIndex(index)}
+                    >
+                        <img 
+                            src={image}
+                            alt={`${book.title} view ${index + 1}`}
+                            className='w-full h-full object-cover'
+                        />
+                        {selectedImageIndex === index && (
+                            <div className="absolute inset-0 bg-blue-500/10" />
+                        )}
+                    </button>
+                ))}
+            </div>
           </div>
         </div>
 
         {/* รายละเอียดเพิ่มเติมและชื่อหนังสือ */}
         <div className='w-full md:w-1/2 flex flex-col space-y-6'>
-          <div className="flex-grow">
+        <div className="flex-grow">
             <p className="text-blue-600 mb-2">{book.category}</p>
             <h1 className="text-3xl font-bold text-gray-800 mb-4">{book.title}</h1>
-            <p className="text-lg text-gray-600">โดย {book.author || 'ชื่อผู้แต่ง, ชื่อผู้เขียน'}</p>
-          </div>
-
-          <div className="space-y-2">
-            <p className="text-sm text-gray-500 line-through">฿{book.oldPrice?.toFixed(2)}</p>
-            <p className="text-2xl font-bold text-green-500">฿{book.newPrice?.toFixed(2)}</p>
-            {book.oldPrice > book.newPrice && (
-              <span className="inline-block bg-red-100 text-red-600 px-2 py-1 rounded-md text-sm font-medium">
-                ลด {Math.round(((book.oldPrice - book.newPrice) / book.oldPrice) * 100)}%
-              </span>
-            )}
+            <p className="text-lg text-gray-600 pb-2 border-b border-gray-300">โดย {book.author || 'ชื่อผู้แต่ง, ชื่อผู้เขียน'}</p>
+            
+            {/* ปรับส่วนราคา */}
+            <div className="mt-2 pb-2">
+              <p className="text-sm text-gray-500 line-through">฿{book.oldPrice?.toFixed(2)}</p>
+              <p className="text-2xl font-bold text-green-500 py-2">฿{book.newPrice?.toFixed(2)}</p>
+              {book.oldPrice > book.newPrice && (
+                <span className="inline-block bg-red-100 text-red-600 px-2 py-1 rounded-md text-sm font-medium">
+                  ลด {Math.round(((book.oldPrice - book.newPrice) / book.oldPrice) * 100)}%
+                </span>
+              )}
+            </div>
           </div>
 
           <div className="space-y-4">
@@ -148,11 +155,6 @@ const BookDetail = () => {
                 })}
               </p>
             </div>
-            
-            <div>
-              <h2 className="text-xl font-semibold mb-2">รายละเอียด</h2>
-              <p className="text-gray-600 leading-relaxed">{book.description}</p>
-            </div>
           </div>
 
           <div className="flex gap-4 mt-auto pt-6">
@@ -165,6 +167,7 @@ const BookDetail = () => {
               <span>เพิ่มลงตะกร้า</span>
             </button>
             <button
+              onClick={() => handleBuyNow(book)}
               className="flex-1 border-2 border-blue-500 text-blue-500 hover:bg-blue-50 
                       py-3 px-4 sm:px-6 rounded-lg transition-colors duration-200 text-sm sm:text-base"
             >
@@ -172,6 +175,14 @@ const BookDetail = () => {
             </button>
           </div>
         </div>
+      </div>
+
+  {/* ปรับขนาดกรอบรายละเอียดให้เท่ากับส่วนบน */}
+      <div className="max-w-6xl mx-auto px-4 py-5 mt-5 bg-white rounded-2xl shadow-lg">
+        <h2 className="text-xl font-semibold mb-2">รายละเอียด</h2>
+        <p className="text-gray-600 leading-relaxed whitespace-pre-line">
+          {book.description}
+        </p>
       </div>
     </div>
   );
