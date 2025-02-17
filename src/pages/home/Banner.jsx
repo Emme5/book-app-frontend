@@ -2,8 +2,9 @@ import React, { useState, useEffect } from "react";
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { Link, useNavigate } from "react-router-dom";
 import banner1 from "../../assets/banner1.png";
-import banner2 from "../../assets/banner2.png";
-import banner3 from "../../assets/banner3.png";
+import banner2 from "../../assets/banner2.gif";
+import banner3 from "../../assets/banner3.gif";
+
 
 const Banner = ({ onNavigate }) => {
 	const [currentSlide, setCurrentSlide] = useState(0);
@@ -23,10 +24,10 @@ const Banner = ({ onNavigate }) => {
 		  image: banner1
 		},
 		{
-			image: banner1
+			image: banner2
 		},
 		{
-			image: banner1
+			image: banner3
 		}
 		//Can Add more slides as needed
 	  ];
@@ -77,7 +78,7 @@ const Banner = ({ onNavigate }) => {
            </h1>
            <button 
              onClick={() => navigate("/book")}
-             className="bg-transparent border border-orange-500 text-orange-500 px-6 py-3 rounded-none flex items-center group hover:bg-orange-500 hover:text-white transition-colors"
+             className="text-xl bg-transparent border border-orange-500 text-orange-400 px-6 py-3 rounded-none flex items-center group hover:bg-orange-500 hover:text-white transition-colors"
            >
              เลือกซื้อ
              <ChevronRight className="ml-2 group-hover:translate-x-1 transition-transform" />

@@ -1,16 +1,17 @@
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { FaBagShopping, FaBars } from "react-icons/fa6";
-import { MdCheckCircle, MdDashboard, MdReceipt, MdShoppingCart } from "react-icons/md";
+import { MdCheckCircle, MdDashboard, MdReceipt, MdShoppingCart, MdFavorite } from "react-icons/md";
 import { FaHome, FaRegUserCircle } from "react-icons/fa";
 import { IoCartOutline } from "react-icons/io5";
 import { FiLogOut } from "react-icons/fi";
 import { useEffect, useState } from "react";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { useAuth } from "../context/AuthContext";
 import Swal from 'sweetalert2';
 import SearchWithSuggestions from './SearchWithSuggestions';
 import { useFetchAllBooksQuery } from "../redux/features/books/booksApi";
 import UserAvatar from './UserAvatar';
+import { clearFavorites } from '../redux/features/favorites/favoritesSlice';
 
 const avatarIcons = [
     "👤", "😊", "🎮", "📚", "🎵", "🎨", "🏃", "🌟",
@@ -26,6 +27,7 @@ const gradientAnimation = `
 `;
 
 const Navbar = () => {
+    const dispatch = useDispatch();
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
     const [isDrawerOpen, setIsDrawerOpen] = useState(false);
     const cartItem = useSelector((state) => state.cart.cartItem);
@@ -54,6 +56,7 @@ const Navbar = () => {
     const getNavigation = () => {
         const baseNavigation = [
             { name: "เลือกซื้อ", href: "/book", icon: <FaBagShopping className="inline-block mr-2 text-2xl"/> },
+            { name: "หนังสือที่ชื่นชอบ", href: "/favorites", icon: <MdFavorite className="inline-block mr-2 text-2xl text-red-500"/> },
             { name: "ประว้ติการสั่งซื้อ", href: "/orders", icon: <MdReceipt className="inline-block mr-2 text-2xl"/> },
             { name: "ตะกร้าสินค้า", href: "/cart", icon: <MdShoppingCart className="inline-block mr-2 text-2xl"/> },
             { name: "ชำระเงิน", href: "/checkout", icon: <MdCheckCircle className="inline-block mr-2 text-2xl"/> },
@@ -85,6 +88,7 @@ const Navbar = () => {
         }).then((result) => {
             if (result.isConfirmed) {
                 logout();
+                dispatch(clearFavorites()); // เพิ่มบรรทัดนี้
                 localStorage.removeItem('userAvatar');
                 setSelectedIcon(null);
                 setIsDropdownOpen(false);
@@ -129,16 +133,23 @@ const Navbar = () => {
 
                     {/* Right Side */}
                     <div className="flex items-center md:gap-6 gap-4 mx-8">
+                    {/* Favorites */}
+                        <Link
+                            to="/favorites"
+                            className="bg-green-700 hover:bg-green-800 text-white flex items-center px-4 py-2 rounded-lg transition backdrop-blur-sm"
+                        >
+                            <MdFavorite className="text-2xl" />
+                        </Link>
                         {/* Cart */}
-                      <Link
+                        <Link
                             to="/cart"
                             className="bg-green-700 hover:bg-green-800 text-white flex items-center px-4 py-2 rounded-lg transition backdrop-blur-sm"
                         >
                             <IoCartOutline className="text-2xl" />
-                                <span className="ml-2 text-sm font-medium">
-                                    {cartItem.length > 0 ? cartItem.length : 0}
-                                </span>
-                            </Link>
+                            <span className="ml-2 text-sm font-medium">
+                                {cartItem.length > 0 ? cartItem.length : 0}
+                            </span>
+                        </Link>
 
                         {/* User Avatar or Login */}
                         <div className="relative dropdown-container">
@@ -176,7 +187,7 @@ const Navbar = () => {
                                                 {avatarIcons.map((icon, index) => (
                                                     <button
                                                         key={index}
-                                                        onClick={() => handleIconSelect(icon)}  // ใช้ฟังก์ชันใหม่
+                                                        onClick={() => handleIconSelect(icon)}
                                                         className="w-8 h-8 hover:bg-gray-100 rounded flex items-center justify-center text-xl"
                                                     >
                                                         {icon}

@@ -8,6 +8,8 @@ import {
 	signInWithPopup,
 	signOut,
 } from "firebase/auth";
+import { useDispatch } from 'react-redux';
+import { fetchUserFavorites } from '../redux/features/favorites/favoritesSlice';
 
 const AuthContext = createContext();
 
@@ -17,6 +19,7 @@ export const useAuth = () => {
 const googleProvider = new GoogleAuthProvider();
 
 export const AuthProvider = ({ children }) => {
+	const dispatch = useDispatch();
 	const [currentUser, setCurrentUser] = useState(null);
 	const [loading, setLoading] = useState(true);
 
@@ -69,6 +72,9 @@ export const AuthProvider = ({ children }) => {
 					...user,
 					...userData
 				});
+
+				dispatch(fetchUserFavorites(user.uid));
+
 			} else {
 				setCurrentUser(null);
 			}
@@ -76,8 +82,8 @@ export const AuthProvider = ({ children }) => {
 			setLoading(false);
 		});
 
-		return () => unsubscribe();
-	}, []);
+        return () => unsubscribe();
+    }, [dispatch]);
 
 	const value = {
 		currentUser,

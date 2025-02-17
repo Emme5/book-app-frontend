@@ -20,6 +20,7 @@ import Book from "../pages/home/books/Book";
 import DeliveryStatus from "../pages/dashboard/Status/DeliveryStatus";
 import SuccessPage from "../pages/home/books/SuccessPage";
 import CancelPage from "../pages/home/books/CancelPage";
+import FavoritesPage from "../pages/home/books/FavoritesPage";
 
 const router = createBrowserRouter([
 	{
@@ -38,10 +39,6 @@ const router = createBrowserRouter([
 						<OrderPage />
 					</PrivateRoute>
 				),
-			},
-			{
-				path: "/about",
-				element: <div>About</div>,
 			},
 			{
 				path: "/login",
@@ -76,6 +73,14 @@ const router = createBrowserRouter([
 				element: (
 					<PrivateRoute>
 						<CancelPage />
+					</PrivateRoute>
+				),
+			},
+			{
+				path: "/favorites",
+				element: (
+					<PrivateRoute>
+						<FavoritesPage />
 					</PrivateRoute>
 				),
 			},
