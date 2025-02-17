@@ -20,20 +20,14 @@ const Banner = ({ onNavigate }) => {
 
 	const slides = [
 		{
-		  title: "เติมเต็มห้องสมุดของคุณ",
-		  subtitle: "รวบรวมหนังสือคุณภาพหลากหลายแนว พร้อมส่งต่อแรงบันดาลใจและความรู้ถึงมือคุณ ในราคาที่เป็นมิตร",
 		  image: banner1
 		},
 		{
-			title: "Special Deal In Dalily Days",
-			subtitle: "รวบรวมหนังสือคุณภาพหลากหลายแนว พร้อมส่งต่อแรงบันดาลใจและความรู้ถึงมือคุณ ในราคาที่เป็นมิตร",
-			image: banner2
-		  },
-		  {
-			title: "ร้านหนังสือที่คุณคู่ควร",
-			subtitle: "รวบรวมหนังสือคุณภาพหลากหลายแนว พร้อมส่งต่อแรงบันดาลใจและความรู้ถึงมือคุณ ในราคาที่เป็นมิตร",
-			image: banner3
-		  }
+			image: banner1
+		},
+		{
+			image: banner1
+		}
 		//Can Add more slides as needed
 	  ];
 	  

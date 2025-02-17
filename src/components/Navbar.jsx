@@ -4,7 +4,6 @@ import { MdCheckCircle, MdDashboard, MdReceipt, MdShoppingCart } from "react-ico
 import { FaHome, FaRegUserCircle } from "react-icons/fa";
 import { IoCartOutline } from "react-icons/io5";
 import { FiLogOut } from "react-icons/fi";
-import avatar from "../assets/avatar.png";
 import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { useAuth } from "../context/AuthContext";
@@ -34,7 +33,16 @@ const Navbar = () => {
     const navigate = useNavigate();
     const { currentUser, logout } = useAuth();
     const location = useLocation();
-    const [selectedIcon, setSelectedIcon] = useState(null);
+    const [selectedIcon, setSelectedIcon] = useState(() => {
+        // โหลดค่าจาก localStorage เมื่อ component mount
+        return localStorage.getItem('userAvatar') || null;
+    });
+
+    const handleIconSelect = (icon) => {
+        setSelectedIcon(icon);
+        localStorage.setItem('userAvatar', icon); // บันทึกลง localStorage
+        setIsDropdownOpen(false);
+    };
 
     useEffect(() => {
         const style = document.createElement('style');
@@ -77,6 +85,8 @@ const Navbar = () => {
         }).then((result) => {
             if (result.isConfirmed) {
                 logout();
+                localStorage.removeItem('userAvatar');
+                setSelectedIcon(null);
                 setIsDropdownOpen(false);
                 setIsDrawerOpen(false);
                 Swal.fire(
@@ -160,13 +170,13 @@ const Navbar = () => {
                                         </div>
 
                                         {/* Icon Selector Section */}
-                                        <div className="px-4 py-2 border-b border-gray-100">
-                                            <div className="text-sm font-medium text-gray-600 mb-2">เลือกไอคอนโปรไฟล์</div>
+                                    <div className="px-4 py-2 border-b border-gray-100">
+                                        <div className="text-sm font-medium text-gray-600 mb-2">เลือกไอคอนโปรไฟล์</div>
                                             <div className="grid grid-cols-4 gap-2">
                                                 {avatarIcons.map((icon, index) => (
                                                     <button
                                                         key={index}
-                                                        onClick={() => setSelectedIcon(icon)}
+                                                        onClick={() => handleIconSelect(icon)}  // ใช้ฟังก์ชันใหม่
                                                         className="w-8 h-8 hover:bg-gray-100 rounded flex items-center justify-center text-xl"
                                                     >
                                                         {icon}

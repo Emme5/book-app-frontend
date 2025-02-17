@@ -12,7 +12,8 @@ import { Trash2 } from 'lucide-react';
 const DeliveryStatus = () => {
   const { data: orders = [], isLoading, error } = useGetAllOrdersQuery();
   const [updateStatus] = useUpdateOrderStatusMutation();
-  const [searchTerm, setSearchTerm] = useState(''); // state สำหรับค้นหา
+  const [searchTerm, setSearchTerm] = useState('');
+  const [searchName, setSearchName] = useState('');
   const [filteredOrders, setFilteredOrders] = useState([]);
   const [deleteOrderMutation] = useDeleteOrderMutation();
   // สร้าง state สำหรับ dropdown ที่เปิด/ปิด
@@ -37,17 +38,26 @@ const DeliveryStatus = () => {
   // ฟังก์ชันค้นหา
   useEffect(() => {
     if (orders && orders.length > 0) {
-      const results = searchTerm
-        ? orders.filter(order => 
-            order._id && order._id.toLowerCase().includes(searchTerm.toLowerCase())
-          )
-        : orders;
-      
-      // ใช้ setFilteredOrders เพียงครั้งเดียว
+      let results = [...orders];  // คัดลอก array เริ่มต้น
+  
+      // กรองด้วย searchTerm (เลขที่คำสั่งซื้อ)
+      if (searchTerm) {
+        results = results.filter(order => 
+          order._id && order._id.toLowerCase().includes(searchTerm.toLowerCase())
+        );
+      }
+  
+      // กรองด้วย searchName (ชื่อลูกค้า)
+      if (searchName) {
+        results = results.filter(order => 
+          order.name && order.name.toLowerCase().includes(searchName.toLowerCase())
+        );
+      }
+  
       setFilteredOrders(results);
     }
-  }, [searchTerm, orders]);
-
+  }, [searchTerm, searchName, orders]);
+  
   const handleDeleteOrder = async (orderId) => {
     try {
         const result = await Swal.fire({
@@ -165,18 +175,29 @@ const DeliveryStatus = () => {
         <h1 className="text-2xl font-semibold text-gray-800">จัดการสถานะการจัดส่ง</h1>
         
         {/* ช่องค้นหา */}
-        <div className="relative">
-          <input
-            type="text"
-            placeholder="ค้นหาด้วยเลขที่คำสั่งซื้อ"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 w-64"
-          />
+        <div className="flex space-x-4"> {/* เพิ่ม flex container */}
+          <div className="relative">
+            <input
+              type="text"
+              placeholder="ค้นหาด้วยเลขที่คำสั่งซื้อ"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 w-64"
+            />
+          </div>
+          
+          <div className="relative">
+            <input
+              type="text"
+              placeholder="ค้นหาด้วยชื่อลูกค้า"
+              value={searchName}
+              onChange={(e) => setSearchName(e.target.value)}
+              className="px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 w-64"
+            />
+          </div>
         </div>
       </div>
 
-      
       <div className="overflow-x-auto">
         <table className="min-w-full bg-white">
           <thead className="bg-gray-100">

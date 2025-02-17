@@ -4,7 +4,6 @@ import { useNavigate } from 'react-router-dom';
 import getBaseUrl from '../../utils/baseURL';
 import Loading from '../../components/Loading';
 import { MdIncompleteCircle } from 'react-icons/md'
-import RevenueChart from './RevenueChart';
 
 const Dashboard = () => {
   const [loading, setLoading] = useState(true);
@@ -56,7 +55,7 @@ const Dashboard = () => {
     {
       title: 'หนังสือที่กำลังได้รับความนิยมในเดือนนี้',
       value: data?.trendingBooks,
-      percentage: '13%',
+      percentage: `${data?.trendingBooksPercentage || 0}%`,
       icon: (
         <svg aria-hidden="true" fill="none" viewBox="0 0 24 24" stroke="currentColor" className="h-6 w-6">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 17h8m0 0V9m0 8l-8-8-4 4-6-6" />
@@ -73,7 +72,7 @@ const Dashboard = () => {
   ];
 
   return (
-<div className="space-y-6">
+  <div className="space-y-6">
       <section className="grid md:grid-cols-2 xl:grid-cols-4 gap-6">
         {stats.map((stat, index) => (
           <div
@@ -100,19 +99,6 @@ const Dashboard = () => {
             </div>
           </div>
         ))}
-      </section>
-
-      <section className="grid md:grid-cols-2 xl:grid-cols-4 xl:grid-rows-3 xl:grid-flow-col gap-6">
-        <div className="flex flex-col md:col-span-2 md:row-span-2 bg-white shadow-lg rounded-xl overflow-hidden hover:shadow-xl transition-shadow duration-300">
-          <div className="px-6 py-5 font-semibold border-b border-gray-100 bg-gray-50">
-            <h3 className="text-lg text-gray-800">จำนวนรายการสั่งซื้อต่อเดือน</h3>
-          </div>
-          <div className="p-4 flex-grow bg-white">
-            <div className="h-full rounded-lg overflow-hidden">
-              <RevenueChart />
-            </div>
-          </div>
-        </div>
       </section>
 
       <section className="text-right font-semibold text-gray-500">

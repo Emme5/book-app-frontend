@@ -113,7 +113,7 @@ const AddBook = () => {
     };
 
     return (
-    <div className="max-w-lg mx-auto md:p-6 p-3 bg-white rounded-lg shadow-md">
+    <div className="max-w-2xl mx-auto md:p-6 p-3 bg-white rounded-lg shadow-md">
       <h2 className="text-2xl font-bold text-gray-800 mb-4">เพิ่มหนังสือใหม่</h2>
 
       <form onSubmit={handleSubmit(onSubmit)} className=''>

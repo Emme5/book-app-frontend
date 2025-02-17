@@ -1,13 +1,20 @@
-import React from "react";
+import React, { useState } from "react";
 import { Link, Outlet, useNavigate, useLocation } from "react-router-dom";
 import { HiViewGridAdd } from "react-icons/hi";
 import { MdOutlineManageHistory } from "react-icons/md";
 import { TbTruckDelivery } from "react-icons/tb";
 import Swal from "sweetalert2";
 
+const avatarIcons = [
+  "👤", "😊", "🎮", "📚", "🎵", "🎨", "🏃", "🌟",
+  ":D", "ὥ", "🤖", "🐷"
+];
+
 const DashboardLayout = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const [selectedIcon, setSelectedIcon] = useState(null);
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
 	const handleLogout = async () => {
 		const cfResult = await Swal.fire({
@@ -123,42 +130,56 @@ const DashboardLayout = () => {
               />
             </svg>
           </button>
-          <div className="relative w-full max-w-md sm:-ml-2">
-            <svg
-              aria-hidden="true"
-              viewBox="0 0 20 20"
-              fill="currentColor"
-              className="absolute h-6 w-6 mt-2.5 ml-2 text-gray-400"
-            >
-              <path
-                fillRule="evenodd"
-                d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z"
-                clipRule="evenodd"
-              />
-            </svg>
-            <input
-              type="text"
-              role="search"
-              placeholder="ค้นหา..."
-              className="py-2 pl-10 pr-4 w-full border-2 border-gray-200 focus:border-indigo-500 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-200 rounded-lg transition-all duration-200"
-            />
-          </div>
 
           <div className="flex flex-shrink-0 items-center ml-auto">
-            <button className="inline-flex items-center p-2 hover:bg-gray-50 focus:bg-gray-50 rounded-lg transition-colors duration-200">
-              <span className="sr-only">User Menu</span>
-              <div className="hidden md:flex md:flex-col md:items-end md:leading-tight">
-                <span className="font-semibold text-gray-900">Mongkol Suphamanee</span>
-                <span className="text-sm text-indigo-600">สถานะ : แอดมิน</span>
-              </div>
-              <span className="h-12 w-12 ml-2 sm:ml-3 mr-2 bg-gray-100 rounded-full overflow-hidden ring-2 ring-indigo-500 ring-offset-2">
+          <button className="inline-flex items-center p-2 hover:bg-gray-50 focus:bg-gray-50 rounded-lg transition-colors duration-200"
+          onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+          >
+            <span className="sr-only">User Menu</span>
+            <div className="hidden md:flex md:flex-col md:items-end md:leading-tight">
+              <span className="font-semibold text-gray-900">Mongkol Suphamanee</span>
+              <span className="text-sm text-indigo-600">สถานะ : แอดมิน</span>
+            </div>
+            {/* แก้ไขส่วนนี้ */}
+            <div 
+              className="h-12 w-12 ml-2 sm:ml-3 mr-2 rounded-full overflow-hidden ring-2 ring-indigo-500 ring-offset-2 relative"
+            >
+              {selectedIcon ? (
+                <div className="w-full h-full flex items-center justify-center text-3xl">
+                  {selectedIcon}
+                </div>
+              ) : (
                 <img
                   src="https://i.natgeofe.com/n/4f5aaece-3300-41a4-b2a8-ed2708a0a27c/domestic-dog_thumb_square.jpg"
                   alt="user profile photo"
                   className="h-full w-full object-cover"
                 />
-              </span>
-            </button>
+              )}
+            </div>
+          </button>
+          
+          {isDropdownOpen && (
+            <div className="absolute right-0 mt-3 w-48 bg-white rounded-lg shadow-lg overflow-hidden z-10">
+              <div className="px-4 py-2 border-b border-gray-100">
+                <div className="text-sm font-medium text-gray-600 mb-2">เลือกไอคอนโปรไฟล์</div>
+                <div className="grid grid-cols-4 gap-2">
+                  {avatarIcons.map((icon, index) => (
+                    <button
+                      key={index}
+                      onClick={() => {
+                        setSelectedIcon(icon);
+                        setIsDropdownOpen(false); // ปิด dropdown หลังเลือก
+                      }}
+                      className="w-8 h-8 hover:bg-gray-100 rounded flex items-center justify-center text-xl"
+                    >
+                      {icon}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
+
             <div className="border-l pl-3 ml-3 space-x-1">
               <button
                 onClick={handleLogout}
@@ -187,7 +208,7 @@ const DashboardLayout = () => {
           <div className="flex flex-col space-y-6 md:space-y-0 md:flex-row justify-between">
             <div className="mr-6">
               <h1 className="text-4xl font-bold text-gray-900 mb-2">Dashboard</h1>
-              <h2 className="text-gray-600 ml-0.5">หนังสือในคลังทั้งหมด</h2>
+              <h2 className="text-gray-600 ml-0.5">หน้า Dashboard ยังไม่สมบูรณ์ยังต้องตรวจสอบอีกครั้ง XD</h2>
             </div>
             <div className="flex flex-col md:flex-row items-start justify-end gap-4">
               <Link
