@@ -45,42 +45,45 @@ const FavoritesPage = () => {
         }
     };
 
-    const handleRemove = (id) => {
-        Swal.fire({
-            title: 'ยืนยันการลบ',
-            text: "คุณต้องการลบหนังสือเล่มนี้ออกจากรายการโปรดหรือไม่?",
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#d33',
-            cancelButtonColor: '#3085d6',
-            confirmButtonText: 'ลบ',
-            cancelButtonText: 'ยกเลิก',
-            background: '#fff',
-            showClass: {
-                popup: 'animate__animated animate__fadeInDown'
-            },
-            hideClass: {
-                popup: 'animate__animated animate__fadeOutUp'
-            }
-        }).then((result) => {
-            if (result.isConfirmed) {
-                dispatch(removeFromFavorites(id));
-                Swal.fire({
-                    position: 'top-end',
-                    icon: 'success',
-                    title: 'ลบหนังสือออกจากรายการโปรดแล้ว',
-                    showConfirmButton: false,
-                    timer: 1500,
-                    toast: true,
-                    background: '#4CAF50',
-                    color: '#fff',
-                    customClass: {
-                        popup: 'colored-toast'
-                    }
-                });
-            }
+    const handleRemove = async (id) => {
+        const result = await Swal.fire({
+          title: 'ยืนยันการลบ',
+          text: "คุณต้องการลบหนังสือเล่มนี้ออกจากรายการโปรดหรือไม่?",
+          icon: 'warning',
+          showCancelButton: true,
+          confirmButtonColor: '#d33',
+          cancelButtonColor: '#3085d6',
+          confirmButtonText: 'ลบ',
+          cancelButtonText: 'ยกเลิก',
+          background: '#fff',
         });
-    };
+      
+        if (result.isConfirmed) {
+            try {
+              await dispatch(removeFromFavorites({ bookId: id, userId: currentUser.uid })).unwrap();
+            Swal.fire({
+              position: 'top-end',
+              icon: 'success',
+              title: 'ลบหนังสือออกจากรายการโปรดแล้ว',
+              showConfirmButton: false,
+              timer: 1500,
+              toast: true,
+              background: '#4CAF50',
+              color: '#fff',
+              customClass: {
+                popup: 'colored-toast'
+              }
+            });
+          } catch (error) {
+            console.error('Failed to remove from favorites:', error);
+            Swal.fire({
+              icon: 'error',
+              title: 'เกิดข้อผิดพลาด',
+              text: 'ไม่สามารถลบหนังสือออกจากรายการโปรดได้ กรุณาลองใหม่อีกครั้ง',
+            });
+          }
+        }
+      };
 
     const handleAddToCart = (book) => {
         dispatch(addToCart(book));

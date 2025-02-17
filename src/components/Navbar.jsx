@@ -55,18 +55,18 @@ const Navbar = () => {
 
     const getNavigation = () => {
         const baseNavigation = [
-            { name: "เลือกซื้อ", href: "/book", icon: <FaBagShopping className="inline-block mr-2 text-2xl"/> },
+            { name: "เลือกซื้อ", href: "/book", icon: <FaBagShopping className="inline-block mr-2 text-2xl text-amber-500"/> },
             { name: "หนังสือที่ชื่นชอบ", href: "/favorites", icon: <MdFavorite className="inline-block mr-2 text-2xl text-red-500"/> },
-            { name: "ประว้ติการสั่งซื้อ", href: "/orders", icon: <MdReceipt className="inline-block mr-2 text-2xl"/> },
-            { name: "ตะกร้าสินค้า", href: "/cart", icon: <MdShoppingCart className="inline-block mr-2 text-2xl"/> },
-            { name: "ชำระเงิน", href: "/checkout", icon: <MdCheckCircle className="inline-block mr-2 text-2xl"/> },
+            { name: "ประว้ติการสั่งซื้อ", href: "/orders", icon: <MdReceipt className="inline-block mr-2 text-2xl text-stone-500"/> },
+            { name: "ตะกร้าสินค้า", href: "/cart", icon: <MdShoppingCart className="inline-block mr-2 text-2xl text-emerald-500"/> },
+            { name: "ชำระเงิน", href: "/checkout", icon: <MdCheckCircle className="inline-block mr-2 text-2xl text-fuchsia-500"/> },
         ];
 
         if (currentUser?.role === 'admin') {
             baseNavigation.splice(1, 0, { 
                 name: "Dashboard", 
                 href: "/dashboard", 
-                icon: <MdDashboard className="inline-block mr-2 text-2xl"/> 
+                icon: <MdDashboard className="inline-block mr-2 text-2xl text-sky-500"/> 
             });
         }
 
@@ -211,12 +211,12 @@ const Navbar = () => {
                                 </>
                             ) : (
                                 <Link 
-                                to="/login" 
-                                className="bg-green-700 hover:bg-green-800 text-white px-4 py-2 rounded-lg flex items-center justify-center gap-2 transition-colors"
-                            >
-                                <FaRegUserCircle className="text-xl mr-2" />
-                                <span>เข้าสู่ระบบ / สมัครสมาชิก</span>
-                            </Link>
+                                    to="/login" 
+                                    className="bg-green-700 hover:bg-green-800 text-white px-4 py-2 rounded-lg flex items-center justify-center gap-2 transition-colors md:flex hidden"
+                                >
+                                    <FaRegUserCircle className="text-xl" />
+                                    <span>สมัครสมาชิก / ลงชื่อเข้าใช้</span>
+                                </Link>
                             )}
                         </div>
                     </div>
@@ -265,12 +265,13 @@ const Navbar = () => {
                         </div>
                     ) : (
                         <Link 
-                        to="/login" 
-                        className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg flex items-center justify-center gap-2 transition-colors"
-                    >
-                        <FaRegUserCircle className="text-xl" />
-                        <span>เข้าสู่ระบบ</span>
-                    </Link>
+                            to="/login" 
+                            className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg flex items-center justify-center gap-2 transition-colors w-full"
+                            onClick={() => setIsDrawerOpen(false)}
+                        >
+                            <FaRegUserCircle className="text-xl" />
+                            <span>สมัครสมาชิก</span>
+                        </Link>
                     )}
                 </div>
 
@@ -284,7 +285,7 @@ const Navbar = () => {
                             }`}
                         >
                             <div className="flex items-center">
-                                <FaHome className="inline-block mr-2 text-2xl" />
+                                <FaHome className="inline-block mr-2 text-2xl text-slate-950" />
                                 หน้าหลัก
                             </div>
                         </Link>

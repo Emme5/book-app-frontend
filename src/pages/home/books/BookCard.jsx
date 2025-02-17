@@ -19,7 +19,7 @@ const BookCard = ({book}) => {
     dispatch(addToCart(product))
   }
 
-  const handleToggleFavorite = () => {
+  const handleToggleFavorite = async () => {
     if (!currentUser) {
       Swal.fire({
         icon: 'warning',
@@ -36,27 +36,34 @@ const BookCard = ({book}) => {
       return;
     }
   
-    if (isFavorite) {
-      dispatch(removeFromFavorites(book._id));
-    } else {
-      dispatch(addToFavorites(book))
-        .then((response) => {
-          // ตรวจสอบว่าการเพิ่มสำเร็จก่อน navigate
-          if (response.meta.requestStatus === 'fulfilled') {
-            navigate('/favorites');
-          }
-        })
-        .catch((error) => {
-          console.error('Failed to add to favorites:', error);
-        });
+    try {
+      if (isFavorite) {
+        await dispatch(removeFromFavorites({ bookId: book._id, userId: currentUser.uid })).unwrap();
+      } else {
+        await dispatch(addToFavorites({...book, userId: currentUser.uid})).unwrap();
+      }
+      Swal.fire({
+        position: 'top-end',
+        icon: 'success',
+        title: isFavorite ? 'นำออกจากรายการโปรดแล้ว' : 'เพิ่มในรายการโปรดแล้ว',
+        showConfirmButton: false,
+        timer: 1500,
+        toast: true,
+        background: '#4CAF50',
+        color: '#fff',
+        customClass: {
+          popup: 'colored-toast'
+        }
+      });
+      // แสดง Swal เมื่อสำเร็จ
+    } catch (error) {
+      console.error('Failed to update favorites:', error);
+      Swal.fire({
+        icon: 'error',
+        title: 'เกิดข้อผิดพลาด',
+        text: 'ไม่สามารถอัปเดตรายการโปรดได้ กรุณาลองใหม่อีกครั้ง',
+      });
     }
-  
-    Swal.fire({
-      icon: 'success',
-      title: isFavorite ? 'นำออกจากรายการโปรดแล้ว' : 'เพิ่มในรายการโปรดแล้ว',
-      showConfirmButton: false,
-      timer: 1500
-    });
   }
 
   return (

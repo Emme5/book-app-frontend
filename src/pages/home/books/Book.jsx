@@ -26,45 +26,54 @@ function Book() {
     const searchQuery = new URLSearchParams(location.search).get('q') || '';
 	const booksPerPage = 48;
 
-	const handleToggleFavorite = (book, e) => {
-        e.stopPropagation();
-        if (!currentUser) {
-            Swal.fire({
-                icon: 'warning',
-                title: 'กรุณาเข้าสู่ระบบ',
-                text: 'คุณต้องเข้าสู่ระบบก่อนเพิ่มหนังสือในรายการโปรด',
-                showCancelButton: true,
-                confirmButtonText: 'เข้าสู่ระบบ',
-                cancelButtonText: 'ยกเลิก'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    navigate('/login');
-                }
-            });
-            return;
-        }
-
-        const isFavorite = favoriteItems.some(item => item._id === book._id);
-        if (isFavorite) {
-            dispatch(removeFromFavorites(book._id));
-        } else {
-            dispatch(addToFavorites(book));
-        }
-
-        Swal.fire({
-            position: 'top-end',
-            icon: 'success',
-            title: isFavorite ? 'นำออกจากรายการโปรดแล้ว' : 'เพิ่มในรายการโปรดแล้ว',
-            showConfirmButton: false,
-            timer: 1500,
-            toast: true,
-            background: '#4CAF50',
-            color: '#fff',
-            customClass: {
-                popup: 'colored-toast'
-            }
-        });
-    };
+	const handleToggleFavorite = async (book, e) => {
+		e.stopPropagation();
+		if (!currentUser) {
+			Swal.fire({
+				icon: 'warning',
+				title: 'กรุณาเข้าสู่ระบบ',
+				text: 'คุณต้องเข้าสู่ระบบก่อนเพิ่มหนังสือในรายการโปรด',
+				showCancelButton: true,
+				confirmButtonText: 'เข้าสู่ระบบ',
+				cancelButtonText: 'ยกเลิก'
+			}).then((result) => {
+				if (result.isConfirmed) {
+					navigate('/login');
+				}
+			});
+			return;
+		}
+	
+		const isFavorite = favoriteItems.some(item => item._id === book._id);
+		try {
+			if (isFavorite) {
+				await dispatch(removeFromFavorites({ bookId: book._id, userId: currentUser.uid })).unwrap();
+			} else {
+				await dispatch(addToFavorites({ ...book, userId: currentUser.uid })).unwrap();
+			}
+	
+			Swal.fire({
+				position: 'top-end',
+				icon: 'success',
+				title: isFavorite ? 'นำออกจากรายการโปรดแล้ว' : 'เพิ่มในรายการโปรดแล้ว',
+				showConfirmButton: false,
+				timer: 1500,
+				toast: true,
+				background: '#4CAF50',
+				color: '#fff',
+				customClass: {
+					popup: 'colored-toast'
+				}
+			});
+		} catch (error) {
+			console.error('Failed to update favorites:', error);
+			Swal.fire({
+				icon: 'error',
+				title: 'เกิดข้อผิดพลาด',
+				text: 'ไม่สามารถอัปเดตรายการโปรดได้ กรุณาลองใหม่อีกครั้ง',
+			});
+		}
+	};
 
 	// ฟังก์ชันกรองหนังสือตามหมวดหมู่และคำค้นหา
 	const filteredBooks = Array.isArray(books) ? books.filter((book) => {

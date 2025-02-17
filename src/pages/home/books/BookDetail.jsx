@@ -20,45 +20,52 @@ const BookDetail = () => {
   const [selectedImageIndex, setSelectedImageIndex] = useState(-1);
   const dispatch = useDispatch();
 
-  const handleToggleFavorite = () => {
+  const handleToggleFavorite = async () => {
     if (!currentUser) {
-      Swal.fire({
-        icon: 'warning',
-        title: 'กรุณาเข้าสู่ระบบ',
-        text: 'คุณต้องเข้าสู่ระบบก่อนเพิ่มหนังสือในรายการโปรด',
-        showCancelButton: true,
-        confirmButtonText: 'เข้าสู่ระบบ',
-        cancelButtonText: 'ยกเลิก'
-      }).then((result) => {
-        if (result.isConfirmed) {
-          navigate('/login');
-        }
-      });
-      return;
+        Swal.fire({
+            icon: 'warning',
+            title: 'กรุณาเข้าสู่ระบบ',
+            text: 'คุณต้องเข้าสู่ระบบก่อนเพิ่มหนังสือในรายการโปรด',
+            showCancelButton: true,
+            confirmButtonText: 'เข้าสู่ระบบ',
+            cancelButtonText: 'ยกเลิก'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                navigate('/login');
+            }
+        });
+        return;
     }
-  
-    if (isFavorite) {
-      dispatch(removeFromFavorites(book._id));
-    } else {
-      dispatch(addToFavorites(book))
-        .then((response) => {
-          // ตรวจสอบว่าการเพิ่มสำเร็จก่อน navigate
-          if (response.meta.requestStatus === 'fulfilled') {
-            navigate('/favorites');
-          }
-        })
-        .catch((error) => {
-          console.error('Failed to add to favorites:', error);
+
+    try {
+        if (isFavorite) {
+            await dispatch(removeFromFavorites({ bookId: book._id, userId: currentUser.uid })).unwrap();
+        } else {
+            await dispatch(addToFavorites({ ...book, userId: currentUser.uid })).unwrap();
+        }
+
+        Swal.fire({
+            position: 'top-end',
+            icon: 'success',
+            title: isFavorite ? 'นำออกจากรายการโปรดแล้ว' : 'เพิ่มในรายการโปรดแล้ว',
+            showConfirmButton: false,
+            timer: 1500,
+            toast: true,
+            background: '#4CAF50',
+            color: '#fff',
+            customClass: {
+                popup: 'colored-toast'
+            }
+        });
+    } catch (error) {
+        console.error('Failed to update favorites:', error);
+        Swal.fire({
+            icon: 'error',
+            title: 'เกิดข้อผิดพลาด',
+            text: 'ไม่สามารถอัปเดตรายการโปรดได้ กรุณาลองใหม่อีกครั้ง',
         });
     }
-  
-    Swal.fire({
-      icon: 'success',
-      title: isFavorite ? 'นำออกจากรายการโปรดแล้ว' : 'เพิ่มในรายการโปรดแล้ว',
-      showConfirmButton: false,
-      timer: 1500
-    });
-  }
+};
 
   const handleBuyNow = (product) => {
     // เพิ่มสินค้าลงตะกร้าก่อน

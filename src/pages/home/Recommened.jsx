@@ -9,6 +9,7 @@ import { useFetchAllBooksQuery } from '../../redux/features/books/booksApi';
 
 
 const Recommended = () => {
+    
     const progressCircle = useRef(null);
     const progressContent = useRef(null);
 
@@ -43,8 +44,8 @@ const createSlides = () => {
 };
 
     return (
-        <div className="py-10">
-            <h2 className="text-4xl font-semibold mb-5">แนะนำสำหรับคุณ</h2>
+        <div className="py-10 px-4 md:px-0">
+            <h2 className="text-2xl md:text-4xl font-semibold mb-5">แนะนำสำหรับคุณ</h2>
 
             <Swiper
                 slidesPerView={1}
@@ -57,7 +58,7 @@ const createSlides = () => {
                     clickable: true,
                 }}
                 navigation={true}
-                modules={[Navigation, Autoplay]}
+                modules={[Navigation, Autoplay, Pagination]}
                 onAutoplayTimeLeft={onAutoplayTimeLeft}
                 className="mySwiper"
             >
@@ -65,18 +66,18 @@ const createSlides = () => {
                     <SwiperSlide key={slideIndex}>
                         <div className="flex flex-col gap-6">
                             {/* แถวที่ 1 */}
-                            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
                                 {slide.firstRow.map((book, index) => (
-                                    <div key={index} className="w-full h-full">
+                                    <div key={index} className="w-full">
                                         <BookCard book={book} />
                                     </div>
                                 ))}
                             </div>
                             {/* แถวที่ 2 */}
                             {slide.secondRow.length > 0 && (
-                                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
                                     {slide.secondRow.map((book, index) => (
-                                        <div key={index} className="w-full h-full">
+                                        <div key={index} className="w-full">
                                             <BookCard book={book} />
                                         </div>
                                     ))}

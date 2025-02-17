@@ -33,12 +33,12 @@ const CartPage = () => {
               title: 'ตะกร้าว่างเปล่า',
               text: 'กรุณาเพิ่มสินค้าในตะกร้าก่อนดำเนินการต่อ',
               showConfirmButton: false,
-              timer: 3000,
+              timer: 2000,
               timerProgressBar: true,
               customClass: {
                   popup: 'colored-toast'
               },
-              background: '#FFF3CD',
+              background: '#d6a815',
               color: '#856404'
           });
       } else {

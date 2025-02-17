@@ -6,6 +6,7 @@ import 'swiper/css';
 import 'swiper/css/pagination';
 import 'swiper/css/navigation';
 import { useFetchAllBooksQuery } from '../../redux/features/books/booksApi';
+import { ChevronDown, ChevronUp } from 'lucide-react';
 
 const categories = [
   { name: "ทุกประเภท", color: "blue" },
@@ -24,11 +25,11 @@ const categories = [
 
 const TopSellers = () => {
   const [selectedCategory, setSelectedCategory] = useState("ทุกประเภท");
+  const [showAllCategories, setShowAllCategories] = useState(false);
   const { data: books = [] } = useFetchAllBooksQuery();
 
     // กรองหนังสือที่มี trending=true ก่อน แล้วค่อยกรองตามหมวดหมู่
     const trendingBooks = books.filter(book => book.trending === true);
-
     const filteredBooks = selectedCategory === "ทุกประเภท" 
     ? trendingBooks 
     : trendingBooks.filter(book => book.category?.toLowerCase() === selectedCategory.toLowerCase());
@@ -57,22 +58,50 @@ const TopSellers = () => {
   };
 
   return (
-    <div className='py-10'>
-      <h2 className='text-4xl font-semibold mb-5'>
+    <div className='py-6 md:py-10 px-4 md:px-0'>
+      <h2 className='text-2xl md:text-4xl font-semibold mb-4 md:mb-5'>
         สินค้าขายดี <span role='img' aria-label='fire'>🔥</span>
       </h2>
 
       {/* category filtering */}
-      <div className='mb-8 flex flex-wrap gap-2'>
-        {categories.map((category, index) => (
+      <div className='mb-6 md:mb-8'>
+        <div className='flex flex-wrap gap-2 items-center'>
+          {categories.slice(0, 3).map((category, index) => (
+            <button
+              key={index}
+              onClick={() => setSelectedCategory(category.name)}
+              className={`${getCategoryStyles(category.name, category.color)} text-xs md:text-sm`}
+            >
+              {category.name}
+            </button>
+          ))}
           <button
-            key={index}
-            onClick={() => setSelectedCategory(category.name)}
-            className={getCategoryStyles(category.name, category.color)}
+            onClick={() => setShowAllCategories(!showAllCategories)}
+            className="px-3 md:px-4 py-1.5 md:py-2 rounded-full bg-gray-200 text-gray-600 hover:bg-gray-300 transition-all duration-300 text-xs md:text-sm font-medium border border-gray-300 flex items-center"
           >
-            {category.name}
+            {showAllCategories ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+            <span className="ml-1">อื่นๆ</span>
           </button>
-        ))}
+        </div>
+        
+        {showAllCategories && (
+          <div className="mt-3 md:mt-4 bg-white p-3 md:p-4 rounded-lg shadow-md">
+            <div className="flex flex-wrap gap-2">
+              {categories.slice(3).map((category, index) => (
+                <button
+                  key={index}
+                  onClick={() => {
+                    setSelectedCategory(category.name);
+                    setShowAllCategories(false);
+                  }}
+                  className={`${getCategoryStyles(category.name, category.color)} text-xs md:text-sm`}
+                >
+                  {category.name}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
 
       <Swiper
@@ -84,10 +113,10 @@ const TopSellers = () => {
         }}
         navigation={true}
         breakpoints={{
-          640: { slidesPerView: 1, spaceBetween: 20 },
-          768: { slidesPerView: 2, spaceBetween: 40 },
-          1024: { slidesPerView: 2, spaceBetween: 50 },
-          1180: { slidesPerView: 3, spaceBetween: 50 }
+          640: { slidesPerView: 2, spaceBetween: 20 },
+          768: { slidesPerView: 2, spaceBetween: 30 },
+          1024: { slidesPerView: 3, spaceBetween: 30 },
+          1280: { slidesPerView: 3, spaceBetween: 30 }
         }}
         modules={[Pagination, Navigation, Autoplay]}
         className="mySwiper"
@@ -101,7 +130,7 @@ const TopSellers = () => {
         ) : (
           <SwiperSlide>
             <div className="text-center py-10">
-              <p className="text-lg text-gray-600">ไม่มีหนังสือในหมวดหมู่นี้</p>
+              <p className="text-base md:text-lg text-gray-600">ไม่มีหนังสือในหมวดหมู่นี้</p>
             </div>
           </SwiperSlide>
         )}
