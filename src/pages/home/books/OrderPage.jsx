@@ -19,7 +19,7 @@ const OrderPage = () => {
   const validOrders = orders.filter(order => 
     order.status !== 'ยกเลิกการจัดส่ง' && 
     order.paymentStatus !== 'ยกเลิก' &&
-    order.paymentStatus !== 'pending' // กรองออเดอร์ที่ยังไม่ได้ชำระเงิน
+    order.paymentStatus !== 'pending'
   );
 
   // เพิ่ม useEffect เพื่อรับ event

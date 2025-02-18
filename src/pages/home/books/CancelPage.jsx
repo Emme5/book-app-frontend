@@ -1,24 +1,25 @@
 import React, { useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { XCircle } from 'lucide-react';
+import { useCancelOrderMutation } from '../../../redux/features/order/ordersApi';
 
 const CancelPage = () => {
     const navigate = useNavigate();
     const location = useLocation();
+    const [cancelOrder] = useCancelOrderMutation();
 
     useEffect(() => {
         const searchParams = new URLSearchParams(location.search);
         const orderId = searchParams.get('order_id');
 
         if (orderId) {
-            // ส่งคำขอไปยัง API เพื่ออัปเดตสถานะออเดอร์เป็น "ยกเลิก"
-            fetch(`/api/orders/cancel/${orderId}`, { method: 'POST' })
-                .then(response => response.json())
-                .then(data => console.log('Order canceled:', data))
-                .catch(error => console.error('Error canceling order:', error));
-        }
-    }, [location]);
-
+            cancelOrder(orderId)
+              .unwrap()
+              .then(data => console.log('Order canceled:', data))
+              .catch(error => console.error('Error canceling order:', error));
+          }
+        }, [location, cancelOrder]);
+        
     return (
         <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4">
             <div className="max-w-md w-full bg-white rounded-lg shadow-lg p-8 text-center">
