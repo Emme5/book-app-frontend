@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useSelector } from 'react-redux';
-import { useForm } from "react-hook-form"
+import { useForm, useWatch } from "react-hook-form"
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../../context/AuthContext';
 import Swal from 'sweetalert2';
@@ -18,14 +18,14 @@ const CheckoutPage = () => {
     const [isChecked, setIsChecked] = useState(false);
     const [createOrder, {isLoading, error}] = useCreateOrderMutation();
 
-      const {
+    const {
         register,
         handleSubmit,
         watch,
         formState: { errors },
-      } = useForm();
-      
-      useEffect(() => {
+    } = useForm();
+
+    useEffect(() => {
         if (cartItem.length === 0) {
             Swal.fire({
                 title: "ไม่พบสินค้าในตะกร้า",
@@ -80,6 +80,59 @@ const CheckoutPage = () => {
             throw error;
         }
     };
+
+    const handleCashOnDelivery = async () => {
+        try {
+            setIsProcessing(true);
+
+            if (!currentUser?.email) {
+                throw new Error('กรุณาเข้าสู่ระบบก่อนทำการสั่งซื้อ');
+            }
+
+            const newOrder = {
+                name: watch('name'),
+                email: currentUser.email,
+                address: {
+                    fullAddress: watch('address'),
+                    district: watch('district'),
+                    amphure: watch('amphure'),
+                    province: watch('state'),
+                    zipcode: watch('zipcode')
+                },
+                phone: watch('phone'),
+                productIds: cartItem.map(item => item._id),
+                totalPrice: totalPrice,
+                status: 'รอดำเนินการ',
+                paymentStatus: 'ชำระเงินปลายทาง'
+            };
+
+            const order = await createOrder(newOrder).unwrap();
+            
+            if (!order?._id) {
+                throw new Error('ไม่สามารถสร้างออเดอร์ได้');
+            }
+
+            Swal.fire({
+                title: "สั่งซื้อสำเร็จ",
+                text: "ออเดอร์ของคุณถูกบันทึกแล้ว คุณจะชำระเงินเมื่อได้รับสินค้า",
+                icon: "success",
+                confirmButtonText: "ตกลง",
+            }).then(() => {
+                navigate('/orders');
+            });
+
+        } catch (err) {
+            console.error("Error:", err);
+            Swal.fire({
+                title: "เกิดข้อผิดพลาด",
+                text: err.message || "ไม่สามารถดำเนินการสั่งซื้อได้ กรุณาลองใหม่อีกครั้ง",
+                icon: "error",
+                confirmButtonText: "ตกลง",
+            });
+        } finally {
+            setIsProcessing(false);
+        }
+    };
       
     const onSubmit = async (data) => {
         try {
@@ -103,8 +156,8 @@ const CheckoutPage = () => {
                 phone: data.phone,
                 productIds: cartItem.map(item => item._id),
                 totalPrice: totalPrice,
-                status: 'pending', // เพิ่มสถานะเริ่มต้น
-                paymentStatus: 'pending' // เพิ่มสถานะการชำระเงิน
+                status: 'pending',
+                paymentStatus: 'pending'
             };
     
             const order = await createOrder(newOrder).unwrap();
@@ -316,25 +369,38 @@ const CheckoutPage = () => {
                             </div>
                         </div>
 
-                        <button
-                            type="submit"
-                            disabled={!isChecked || isProcessing} // แก้จาก isLoading เป็น isProcessing
-                            className={`w-full md:w-auto px-6 py-3 bg-blue-600 text-white font-medium rounded-lg
+                        <div className="mt-6 flex space-x-4">
+                            <button
+                                type="submit"
+                                disabled={!isChecked || isProcessing}
+                                className={`flex-1 px-6 py-3 bg-blue-600 text-white font-medium rounded-lg
                                 ${(!isChecked || isProcessing) ? 'opacity-50 cursor-not-allowed' : 'hover:bg-blue-700'}
                                 transition duration-200 ease-in-out`}
-                        >
-                            {isProcessing ? ( // แก้จาก isLoading เป็น isProcessing
+                            >
+                                {isProcessing ? (
                                 <span className="flex items-center justify-center">
                                     <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                                     </svg>
                                     กำลังนำไปสู่หน้าชำระเงิน...
                                 </span>
-                            ) : (
-                                'ดำเนินการชำระเงิน'
-                            )}
-                        </button>
+                                ) : (
+                                'ชำระเงินออนไลน์'
+                                )}
+                            </button>
+                            
+                            <button
+                                type="button"
+                                onClick={handleCashOnDelivery}
+                                disabled={!isChecked || isProcessing}
+                                className={`flex-1 px-6 py-3 bg-green-600 text-white font-medium rounded-lg
+                                ${(!isChecked || isProcessing) ? 'opacity-50 cursor-not-allowed' : 'hover:bg-green-700'}
+                                transition duration-200 ease-in-out`}
+                            >
+                                ชำระเงินปลายทาง
+                            </button>
+                            </div>
                         </div>
                     </form>
                 </div>
