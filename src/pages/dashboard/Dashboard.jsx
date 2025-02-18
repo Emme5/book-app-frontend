@@ -7,29 +7,82 @@ import { MdIncompleteCircle } from 'react-icons/md'
 
 const Dashboard = () => {
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [data, setData] = useState({});
   const navigate = useNavigate();
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axios.get(`${getBaseUrl()}/api/admin`, {
+        setError(null);
+        const token = localStorage.getItem('token');
+        const baseUrl = getBaseUrl();
+        
+        // Debug logs
+        console.log('Base URL:', baseUrl);
+        console.log('Token exists:', !!token);
+        
+        if (!token) {
+          console.log('No token found, redirecting to login');
+          navigate('/login');
+          return;
+        }
+
+        console.log('Making API request to:', `${baseUrl}/api/admin`);
+        
+        const response = await axios.get(`${baseUrl}/api/admin`, {
           headers: {
-            'Authorization': `Bearer ${localStorage.getItem('token')}`,
+            'Authorization': `Bearer ${token}`,
             'Content-Type': 'application/json',
           },
+          timeout: 10000, // เพิ่มเวลา timeout เป็น 10 วินาที
+          validateStatus: status => {
+            console.log('Response status:', status);
+            return status >= 200 && status < 300;
+          }
         });
+
+        console.log('API Response:', response.data);
         setData(response.data);
-        setLoading(false);
       } catch (error) {
-        console.error("Error:", error);
+        console.error("Detailed error:", {
+          message: error.message,
+          status: error.response?.status,
+          data: error.response?.data,
+          config: {
+            url: error.config?.url,
+            method: error.config?.method,
+            headers: error.config?.headers,
+          }
+        });
+
+        if (error.response?.status === 401 || error.response?.status === 403) {
+          console.log('Authentication error, redirecting to login');
+          navigate('/login');
+        } else if (error.code === 'ECONNABORTED') {
+          setError('การเชื่อมต่อหมดเวลา กรุณาลองใหม่อีกครั้ง');
+        } else if (error.message === 'Network Error') {
+          setError('ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์ได้ กรุณาตรวจสอบการเชื่อมต่อของคุณ');
+        } else {
+          setError(`เกิดข้อผิดพลาดในการโหลดข้อมูล: ${error.response?.data?.message || error.message}`);
+        }
+      } finally {
+        setLoading(false);
       }
     };
 
     fetchData();
-  }, []);
+  }, [navigate]);
 
   if (loading) return <Loading />;
+
+  if (error) {
+    return (
+      <div className="p-4 mb-4 text-sm text-red-700 bg-red-100 rounded-lg">
+        <p>{error}</p>
+      </div>
+    );
+  }
 
   const stats = [
     {
