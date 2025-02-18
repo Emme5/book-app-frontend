@@ -1,9 +1,23 @@
-import React from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useEffect } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { XCircle } from 'lucide-react';
 
 const CancelPage = () => {
     const navigate = useNavigate();
+    const location = useLocation();
+
+    useEffect(() => {
+        const searchParams = new URLSearchParams(location.search);
+        const orderId = searchParams.get('order_id');
+
+        if (orderId) {
+            // ส่งคำขอไปยัง API เพื่ออัปเดตสถานะออเดอร์เป็น "ยกเลิก"
+            fetch(`/api/orders/cancel/${orderId}`, { method: 'POST' })
+                .then(response => response.json())
+                .then(data => console.log('Order canceled:', data))
+                .catch(error => console.error('Error canceling order:', error));
+        }
+    }, [location]);
 
     return (
         <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4">

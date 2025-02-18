@@ -16,6 +16,12 @@ const OrderPage = () => {
     skip: !currentUser?.email
   });
 
+  const validOrders = orders.filter(order => 
+    order.status !== 'ยกเลิกการจัดส่ง' && 
+    order.paymentStatus !== 'ยกเลิก' &&
+    order.paymentStatus !== 'pending' // กรองออเดอร์ที่ยังไม่ได้ชำระเงิน
+  );
+
   // เพิ่ม useEffect เพื่อรับ event
   useEffect(() => {
     const handleStatusUpdate = () => {
@@ -76,13 +82,13 @@ const getStatusColor = (status) => {
     <div className='container mx-auto p-4 sm:p-6 min-h-screen bg-gray-50'>
       <h2 className='text-2xl md:text-3xl font-mono mb-6 text-gray-800'>ประวัติการสั่งซื้อของคุณ</h2>
       
-      {orders.length === 0 ? (
+      {validOrders.length === 0 ? (
         <div className="text-center py-12 bg-white rounded-lg shadow-sm">
-          <p className="text-gray-600 text-lg">ยังไม่มีรายการสั่งซื้อ</p>
+          <p className="text-gray-600 text-lg">ยังไม่มีรายการสั่งซื้อที่สมบูรณ์</p>
         </div>
       ) : (
         <div className="space-y-6">
-          {orders.map((order, index) => (
+          {validOrders.map((order, index) => (
             <div key={order._id} 
               className='bg-white border rounded-lg p-4 sm:p-6 shadow-sm hover:shadow-md transition-shadow duration-300'>
               <div className="flex justify-between items-center flex-wrap gap-4">

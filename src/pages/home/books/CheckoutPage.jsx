@@ -306,11 +306,11 @@ const CheckoutPage = () => {
                         <div className="mt-6">
                         <h3 className="text-lg font-medium mb-2">วิธีการชำระเงินที่รองรับ:</h3>
                         <div className="flex space-x-4 py-4">
-                            <div className="p-2 border rounded">
+                            <div className="p-2">
                                 <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQKDv2FszUt_gcJAo2Qs8XmcSgqF0vxLQWxag&s" alt="Credit Card" className="h-8" />
                                 <span className="text-sm">บัตรเครดิต/เดบิต</span>
                             </div>
-                            <div className="p-2 border rounded">
+                            <div className="p-2">
                                 <img src="https://upload.wikimedia.org/wikipedia/commons/c/c5/PromptPay-logo.png" alt="PromptPay" className="h-8" />
                                 <span className="text-sm">พร้อมเพย์</span>
                             </div>
