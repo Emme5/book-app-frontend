@@ -77,9 +77,27 @@ const BookDetail = () => {
   const handleBuyNow = (product) => {
     // เพิ่มสินค้าลงตะกร้าก่อน
     dispatch(addToCart(product));
-    // นำทางไปหน้า checkout
-    navigate('/checkout');
-  };
+    
+    Swal.fire({
+        position: 'top-end',
+        icon: 'success',
+        title: 'เพิ่มลงตะกร้าแล้ว',
+        text: 'กำลังนำท่านไปยังหน้าชำระเงิน...',
+        showConfirmButton: false,
+        timer: 1500,
+        toast: true,
+        background: '#4CAF50',
+        color: '#fff',
+        customClass: {
+            popup: 'colored-toast'
+        }
+    });
+
+    // หน่วงเวลาสักครู่ก่อนนำทางไปหน้า checkout
+    setTimeout(() => {
+        navigate('/checkout');
+    }, 1000);
+};
 
   const handlePrevImage = () => {
     if (selectedImageIndex === -1) {
@@ -106,7 +124,20 @@ const BookDetail = () => {
 
   const handleAddToCart = (product) => {
     dispatch(addToCart(product));
-  };
+    Swal.fire({
+        position: 'top-end',
+        icon: 'success',
+        title: 'เพิ่มลงตะกร้าแล้ว',
+        showConfirmButton: false,
+        timer: 1500,
+        toast: true,
+        background: '#4CAF50',
+        color: '#fff',
+        customClass: {
+            popup: 'colored-toast'
+        }
+    });
+};
 
   useEffect(() => {
     if (book) {
