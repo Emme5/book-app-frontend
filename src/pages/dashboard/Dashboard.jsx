@@ -12,19 +12,19 @@ const Dashboard = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const fetchData = async () => {
+    const checkTokenAndFetchData = async () => {
       try {
         setError(null);
         const token = localStorage.getItem('token');
+        const tokenExpiration = localStorage.getItem('tokenExpiration');
         const baseUrl = getBaseUrl();
         
-        // Debug logs
-        console.log('Base URL:', baseUrl);
-        console.log('Token exists:', !!token);
-        
-        if (!token) {
-          console.log('No token found, redirecting to login');
-          navigate('/login');
+        // ตรวจสอบ token และการหมดอายุ
+        if (!token || !tokenExpiration || Date.now() > parseInt(tokenExpiration)) {
+          console.log('Token invalid or expired, redirecting to login');
+          localStorage.removeItem('token');
+          localStorage.removeItem('tokenExpiration');
+          navigate('/admin/login');
           return;
         }
 
@@ -35,34 +35,31 @@ const Dashboard = () => {
             'Authorization': `Bearer ${token}`,
             'Content-Type': 'application/json',
           },
-          timeout: 10000, // เพิ่มเวลา timeout เป็น 10 วินาที
-          validateStatus: status => {
-            console.log('Response status:', status);
-            return status >= 200 && status < 300;
-          }
+          timeout: 10000,
         });
 
-        console.log('API Response:', response.data);
-        setData(response.data);
+        if (response.data) {
+          console.log('API Response received:', response.data);
+          setData(response.data);
+        }
       } catch (error) {
-        console.error("Detailed error:", {
+        console.error("API Error:", {
           message: error.message,
           status: error.response?.status,
-          data: error.response?.data,
-          config: {
-            url: error.config?.url,
-            method: error.config?.method,
-            headers: error.config?.headers,
-          }
+          data: error.response?.data
         });
 
+        // จัดการ error ตามประเภท
         if (error.response?.status === 401 || error.response?.status === 403) {
-          console.log('Authentication error, redirecting to login');
-          navigate('/login');
+          localStorage.removeItem('token');
+          localStorage.removeItem('tokenExpiration');
+          navigate('/admin/login');
         } else if (error.code === 'ECONNABORTED') {
           setError('การเชื่อมต่อหมดเวลา กรุณาลองใหม่อีกครั้ง');
         } else if (error.message === 'Network Error') {
           setError('ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์ได้ กรุณาตรวจสอบการเชื่อมต่อของคุณ');
+        } else if (error.response?.status === 500) {
+          setError('เกิดข้อผิดพลาดที่เซิร์ฟเวอร์ กรุณาลองใหม่อีกครั้งในภายหลัง');
         } else {
           setError(`เกิดข้อผิดพลาดในการโหลดข้อมูล: ${error.response?.data?.message || error.message}`);
         }
@@ -71,15 +68,26 @@ const Dashboard = () => {
       }
     };
 
-    fetchData();
+    checkTokenAndFetchData();
   }, [navigate]);
 
+  // แสดง loading state
   if (loading) return <Loading />;
 
   if (error) {
     return (
       <div className="p-4 mb-4 text-sm text-red-700 bg-red-100 rounded-lg">
+        <p className="font-medium">เกิดข้อผิดพลาด</p>
         <p>{error}</p>
+      </div>
+    );
+  }
+
+  // ตรวจสอบว่ามีข้อมูลหรือไม่
+  if (!data || Object.keys(data).length === 0) {
+    return (
+      <div className="p-4 mb-4 text-sm text-yellow-700 bg-yellow-100 rounded-lg">
+        <p>ไม่พบข้อมูลสถิติ กรุณาลองโหลดหน้าใหม่อีกครั้ง</p>
       </div>
     );
   }

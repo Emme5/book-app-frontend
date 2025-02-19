@@ -21,7 +21,6 @@ const Recommended = () => {
     };
 
     const { data: books = [] } = useFetchAllBooksQuery();
-
     // กรองเฉพาะหนังสือที่มี recommended=true
     const recommendedBooks = books.filter(book => book.recommended === true)
 

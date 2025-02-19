@@ -27,6 +27,7 @@ const TopSellers = () => {
   const [selectedCategory, setSelectedCategory] = useState("ทุกประเภท");
   const [showAllCategories, setShowAllCategories] = useState(false);
   const { data: books = [] } = useFetchAllBooksQuery();
+  
 
     // กรองหนังสือที่มี trending=true ก่อน แล้วค่อยกรองตามหมวดหมู่
     const trendingBooks = books.filter(book => book.trending === true);

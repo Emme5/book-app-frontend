@@ -14,6 +14,8 @@ export const store = configureStore({
     [ordersApi.reducerPath]: ordersApi.reducer,
   },
   middleware: (getDefaultMiddleware) =>
-    getDefaultMiddleware().concat(booksApi.middleware, ordersApi.middleware),
+    getDefaultMiddleware({
+      serializableCheck: false, // เพิ่มตัวเลือกนี้
+    }).concat(booksApi.middleware, ordersApi.middleware),
 });
 

@@ -1,16 +1,18 @@
 const getBaseUrl = () => {
-    // ใช้ VITE_SERVER_URL จาก .env เป็นอันดับแรก
+    console.log('ENV:', import.meta.env.MODE);
+    console.log('SERVER_URL:', import.meta.env.VITE_SERVER_URL);
+    
+    // ถ้าเป็น development mode ใช้ localhost
+    if (import.meta.env.MODE === 'development') {
+        return 'http://localhost:5000';
+    }
+    
+    // ถ้าเป็น production mode ใช้ URL จาก env
     if (import.meta.env.VITE_SERVER_URL) {
         return import.meta.env.VITE_SERVER_URL;
     }
 
-    // ถ้าไม่มี VITE_SERVER_URL ให้ใช้ตามโหมดการทำงาน
-    if (import.meta.env.MODE === 'production') {
-        return 'https://book-app-backend-alpha.vercel.app';
-    }
-
-    // fallback สำหรับ development
-    return 'http://localhost:5000';
+    return 'http://localhost:5000'; // fallback
 };
 
 export default getBaseUrl;

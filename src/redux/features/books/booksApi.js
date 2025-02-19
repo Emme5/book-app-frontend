@@ -2,14 +2,13 @@ import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 import getBaseUrl from "../../../utils/baseURL";
 
 const baseQuery = fetchBaseQuery({
-    baseUrl: `${getBaseUrl()}/api/books`,
+    baseUrl: 'http://localhost:5000/api/books',
     credentials: "include",
     prepareHeaders: (headers) => {
         const token = localStorage.getItem("token");
         if (token) {
             headers.set("Authorization", `Bearer ${token}`);
         }
-        // ลบ Content-Type สำหรับ FormData
         return headers;
     },
 });
@@ -21,6 +20,19 @@ const booksApi = createApi({
 	endpoints: (builder) => ({
 		fetchAllBooks: builder.query({
 			query: () => "/",
+			// เพิ่ม transform response
+			transformResponse: (response) => {
+				// ตรวจสอบว่า response มี books property หรือไม่
+				if (response && response.books) {
+					return response.books;
+				}
+				// ถ้าเป็น array อยู่แล้วก็ return เลย
+				if (Array.isArray(response)) {
+					return response;
+				}
+				// ถ้าไม่ใช่ทั้งสองกรณี return array ว่าง
+				return [];
+			},
 			providesTags: ["Books"],
 		}),
 		fetchBookById: builder.query({

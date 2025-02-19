@@ -18,6 +18,7 @@ function Book() {
     const { favoriteItems } = useSelector((state) => state.favorites);
 	const navigate = useNavigate();
 	const { data: books = [], isLoading } = useFetchAllBooksQuery();
+
     const [selectedBookId, setSelectedBookId] = useState(null);
 	const [isModalOpen, setIsModalOpen] = useState(false);
 	const [selectedCategory, setSelectedCategory] = useState("ทุกประเภท");
