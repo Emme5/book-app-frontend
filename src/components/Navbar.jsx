@@ -212,7 +212,7 @@ const Navbar = () => {
                             ) : (
                                 <Link 
                                     to="/login" 
-                                    className="bg-green-700 hover:bg-green-800 text-white px-4 py-2 rounded-lg flex items-center justify-center gap-2 transition-colors md:flex hidden"
+                                    className="bg-green-700 hover:bg-green-800 text-white px-4 py-2 rounded-lg items-center justify-center gap-2 transition-colors md:flex hidden"
                                 >
                                     <FaRegUserCircle className="text-xl" />
                                     <span>สมัครสมาชิก / ลงชื่อเข้าใช้</span>

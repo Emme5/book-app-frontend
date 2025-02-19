@@ -6,7 +6,7 @@ import { addToCart } from '../../../redux/features/cart/cartSlice';
 import { useFetchBookByIdQuery } from '../../../redux/features/books/booksApi';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { MdFavorite, MdFavoriteBorder } from 'react-icons/md';
-import { addToFavorites, removeFromFavorites } from '../../../redux/features/favorites/favoritesSlice';
+import { addToFavorites, fetchUserFavorites, removeFromFavorites } from '../../../redux/features/favorites/favoritesSlice';
 import { useAuth } from '../../../context/AuthContext';
 import Swal from 'sweetalert2';
 
@@ -38,11 +38,18 @@ const BookDetail = () => {
     }
 
     try {
-        if (isFavorite) {
-            await dispatch(removeFromFavorites({ bookId: book._id, userId: currentUser.uid })).unwrap();
-        } else {
-            await dispatch(addToFavorites({ ...book, userId: currentUser.uid })).unwrap();
+        const actionMethod = isFavorite ? removeFromFavorites : addToFavorites;
+        const actionPayload = { bookId: book._id, userId: currentUser.uid };
+        
+        const result = await dispatch(actionMethod(actionPayload)).unwrap();
+        
+        // เพิ่มการเช็คผลลัพธ์จาก API
+        if (!Array.isArray(result)) {
+            throw new Error('Invalid response format');
         }
+        
+        // อัพเดท UI ทันที
+        dispatch(fetchUserFavorites(currentUser.uid));
 
         Swal.fire({
             position: 'top-end',
@@ -58,11 +65,11 @@ const BookDetail = () => {
             }
         });
     } catch (error) {
-        console.error('Failed to update favorites:', error);
+        console.error('Favorites Update Error:', error);
         Swal.fire({
             icon: 'error',
             title: 'เกิดข้อผิดพลาด',
-            text: 'ไม่สามารถอัปเดตรายการโปรดได้ กรุณาลองใหม่อีกครั้ง',
+            text: error.message || 'ไม่สามารถอัปเดตรายการโปรดได้ กรุณาลองใหม่อีกครั้ง',
         });
     }
 };

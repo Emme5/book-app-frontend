@@ -4,7 +4,7 @@ import { MdFavorite, MdFavoriteBorder } from 'react-icons/md'
 import { Link, useNavigate } from 'react-router-dom'
 import { useDispatch, useSelector } from 'react-redux'
 import { addToCart } from '../../../redux/features/cart/cartSlice'
-import { addToFavorites, removeFromFavorites } from '../../../redux/features/favorites/favoritesSlice'
+import { addToFavorites, fetchUserFavorites, removeFromFavorites } from '../../../redux/features/favorites/favoritesSlice'
 import Swal from 'sweetalert2'
 import { useAuth } from '../../../context/AuthContext';
 
@@ -13,7 +13,9 @@ const BookCard = ({book}) => {
   const { currentUser } = useAuth();
   const dispatch = useDispatch();
   const { favoriteItems } = useSelector((state) => state.favorites);
-  const isFavorite = favoriteItems.some(item => item._id === book._id);
+  const isFavorite = Array.isArray(favoriteItems) && favoriteItems.some(item => 
+    item?._id === book?._id
+  );
 
   const handleAddToCart = (product) => {
     dispatch(addToCart(product))
@@ -35,13 +37,21 @@ const BookCard = ({book}) => {
       });
       return;
     }
-  
+
     try {
-      if (isFavorite) {
-        await dispatch(removeFromFavorites({ bookId: book._id, userId: currentUser.uid })).unwrap();
-      } else {
-        await dispatch(addToFavorites({...book, userId: currentUser.uid})).unwrap();
+      const actionMethod = isFavorite ? removeFromFavorites : addToFavorites;
+      const actionPayload = { bookId: book._id, userId: currentUser.uid };
+  
+      const result = await dispatch(actionMethod(actionPayload)).unwrap();
+      
+      // เพิ่มการเช็คผลลัพธ์จาก API
+      if (!Array.isArray(result)) {
+        throw new Error('Invalid response format');
       }
+  
+      // อัพเดท UI ทันทีหลังจากได้รับการตอบกลับ
+      dispatch(fetchUserFavorites(currentUser.uid));
+  
       Swal.fire({
         position: 'top-end',
         icon: 'success',
@@ -55,16 +65,15 @@ const BookCard = ({book}) => {
           popup: 'colored-toast'
         }
       });
-      // แสดง Swal เมื่อสำเร็จ
     } catch (error) {
-      console.error('Failed to update favorites:', error);
+      console.error('Favorites Update Error:', error);
       Swal.fire({
         icon: 'error',
         title: 'เกิดข้อผิดพลาด',
-        text: 'ไม่สามารถอัปเดตรายการโปรดได้ กรุณาลองใหม่อีกครั้ง',
+        text: error.message || 'ไม่สามารถอัปเดตรายการโปรดได้ กรุณาลองใหม่อีกครั้ง',
       });
     }
-  }
+  };
 
   return (
     <div className="rounded-lg transition-shadow duration-300">

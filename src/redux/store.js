@@ -15,7 +15,7 @@ export const store = configureStore({
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({
-      serializableCheck: false, // เพิ่มตัวเลือกนี้
+      serializableCheck: false,
     }).concat(booksApi.middleware, ordersApi.middleware),
 });
 

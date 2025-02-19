@@ -8,6 +8,7 @@ import {
 import { HashLoader } from 'react-spinners';
 import eventEmitter from '../../../utils/eventEmitter';
 import { Trash2 } from 'lucide-react';
+import { useFetchBooksByIdsQuery } from '../../../redux/features/books/booksApi';
 
 const DeliveryStatus = () => {
   const { data: orders = [], isLoading, error } = useGetAllOrdersQuery();
@@ -16,13 +17,23 @@ const DeliveryStatus = () => {
   const [searchName, setSearchName] = useState('');
   const [filteredOrders, setFilteredOrders] = useState([]);
   const [deleteOrderMutation] = useDeleteOrderMutation();
-  // สร้าง state สำหรับ dropdown ที่เปิด/ปิด
   const [openOrderId, setOpenOrderId] = useState(null);
 
-  // ฟังก์ชันสำหรับเปิด/ปิด dropdown
-  const toggleOrderDetails = (orderId) => {
-    setOpenOrderId(prevId => prevId === orderId ? null : orderId);
-  };
+  const allBookIds = orders.flatMap(order => order.productIds);
+  const { data: books = [] } = useFetchBooksByIdsQuery(allBookIds, {
+    skip: allBookIds.length === 0
+  });
+
+  // สร้าง Map สำหรับค้นหาหนังสือตาม ID
+  const booksMap = books.reduce((acc, book) => {
+    acc[book._id] = book;
+    return acc;
+  }, {});
+
+ // ฟังก์ชันสำหรับเปิด/ปิด dropdown
+ const toggleOrderDetails = (orderId) => {
+  setOpenOrderId(prevId => prevId === orderId ? null : orderId);
+};
 
   // สถานะที่เป็นไปได้ทั้งหมด
   const possibleStatuses = [
@@ -39,25 +50,25 @@ const DeliveryStatus = () => {
   useEffect(() => {
     if (orders && orders.length > 0) {
       let results = [...orders];  // คัดลอก array เริ่มต้น
-  
+
       // กรองด้วย searchTerm (เลขที่คำสั่งซื้อ)
       if (searchTerm) {
-        results = results.filter(order => 
+        results = results.filter(order =>
           order._id && order._id.toLowerCase().includes(searchTerm.toLowerCase())
         );
       }
-  
+
       // กรองด้วย searchName (ชื่อลูกค้า)
       if (searchName) {
-        results = results.filter(order => 
+        results = results.filter(order =>
           order.name && order.name.toLowerCase().includes(searchName.toLowerCase())
         );
       }
-  
+
       setFilteredOrders(results);
     }
   }, [searchTerm, searchName, orders]);
-  
+
   const handleDeleteOrder = async (orderId) => {
     try {
         const result = await Swal.fire({
@@ -74,7 +85,7 @@ const DeliveryStatus = () => {
         if (result.isConfirmed) {
           await deleteOrderMutation(orderId).unwrap();
           setFilteredOrders(prev => prev.filter(order => order._id !== orderId));
-          
+
           await Swal.fire({
               title: 'ลบสำเร็จ',
               text: 'ลบรายการสั่งซื้อเรียบร้อยแล้ว',
@@ -108,25 +119,25 @@ const DeliveryStatus = () => {
 
       if (result.isConfirmed) {
         // แก้ไขการ update status
-        const response = await updateStatus({ 
-          orderId, 
-          status: newStatus 
+        const response = await updateStatus({
+          orderId,
+          status: newStatus
         }).unwrap();
-  
+
         // อัพเดท filteredOrders เพื่อสะท้อนการเปลี่ยนแปลง
-        setFilteredOrders(prev => 
-          prev.map(order => 
+        setFilteredOrders(prev =>
+          prev.map(order =>
             order._id === orderId ? { ...order, status: newStatus } : order
           )
         );
-  
+
         await Swal.fire({
           title: 'สำเร็จ!',
           text: 'อัพเดทสถานะเรียบร้อยแล้ว',
           icon: 'success',
           timer: 1000
         });
-        
+
         eventEmitter.emit('orderStatusUpdated')
       }
     } catch (error) {
@@ -173,7 +184,7 @@ const DeliveryStatus = () => {
     <div className="bg-white rounded-lg shadow-lg p-6">
       <div className="mb-6 flex justify-between items-center">
         <h1 className="text-2xl font-semibold text-gray-800">จัดการสถานะการจัดส่ง</h1>
-        
+
         {/* ช่องค้นหา */}
         <div className="flex space-x-4"> {/* เพิ่ม flex container */}
           <div className="relative">
@@ -185,7 +196,7 @@ const DeliveryStatus = () => {
               className="px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 w-64"
             />
           </div>
-          
+
           <div className="relative">
             <input
               type="text"
@@ -215,7 +226,7 @@ const DeliveryStatus = () => {
               <React.Fragment key={order._id}>
                 <tr>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 flex items-center">
-                    <button 
+                    <button
                       onClick={() => toggleOrderDetails(order._id)}
                       className="mr-3"
                     >
@@ -248,7 +259,7 @@ const DeliveryStatus = () => {
                           </option>
                         ))}
                       </select>
-                      
+
                       {/* ปุ่มลบ */}
                       <button
                         onClick={() => handleDeleteOrder(order._id)}
@@ -268,7 +279,15 @@ const DeliveryStatus = () => {
                           <p className='mb-3'>อีเมล: {order.email}</p>
                           <p className='mb-3'>เบอร์โทร: {order.phone}</p>
                           <p className='mb-3'>
-                            เวลาสั่งซื้อ: {order.createdAt ? 
+                            วันที่สั่งซื้อ: {order.createdAt ?
+                              new Date(order.createdAt).toLocaleDateString('th-TH', {
+                                year: 'numeric',
+                                month: 'long',
+                                day: 'numeric'
+                              }) : '-'}
+                          </p>
+                          <p className='mb-3'>
+                            เวลาสั่งซื้อ: {order.createdAt ?
                               new Date(order.createdAt).toLocaleTimeString('th-TH', {
                                 hour: '2-digit',
                                 minute: '2-digit'
@@ -280,6 +299,36 @@ const DeliveryStatus = () => {
                           <p className='mb-3'>{order.address.city}, {order.address.state}</p>
                           <p className='mb-3'>{order.address.country}, {order.address.zipcode}</p>
                         </div>
+                      </div>
+
+                      {/* เพิ่มเส้นแบ่งเขต */}
+                      <hr className="my-4 border-t border-gray-300" />
+
+                      {/* แสดงรายการหนังสือ */}
+                      <div className="mt-6">
+                        <h4 className="font-semibold mb-2">รายการหนังสือ</h4>
+                        <div className="space-y-3">
+                          {order.productIds.map((bookId) => {
+                            const book = booksMap[bookId];
+                            return (
+                              <div key={bookId} className="flex items-start space-x-4 p-3 bg-gray-50 rounded-lg border border-gray-100">
+                                <div className="flex-1 min-w-0">
+                                  <h4 className="font-medium text-gray-900 truncate">{book?.title || 'ไม่พบชื่อหนังสือ'}</h4>
+                                  <p className="text-sm text-gray-600">ราคา: ฿{book?.newPrice?.toFixed(2) || '0.00'}</p>
+                                </div>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
+
+                      {/* เพิ่มเส้นแบ่งเขต */}
+                      <hr className="my-4 border-t border-gray-300" />
+
+                      {/* แสดงยอดรวม */}
+                      <div className="mt-4">
+                        <h4 className="font-semibold mb-2">ยอดรวม</h4>
+                        <p className="text-xl font-bold text-gray-800">฿{order.totalPrice?.toLocaleString() || '0'}</p>
                       </div>
                     </td>
                   </tr>
