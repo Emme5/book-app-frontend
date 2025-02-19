@@ -18,17 +18,16 @@ const AdminLogin = () => {
         const navigate = useNavigate()
 
         const onSubmit = async (data) => {
-          console.log('Sending login data:', data); // เพิ่มบรรทัดนี้
           try {
-              const response = await axios.post(
-                  `${getBaseUrl()}/api/auth/admin`, 
-                  data,
-                  {
-                      headers: {
-                          'Content-Type': 'application/json'
-                      }
-                  }
-              );
+              const response = await axios({
+                  method: 'POST',
+                  url: `${getBaseUrl()}/api/auth/admin`,
+                  data: data,
+                  headers: {
+                      'Content-Type': 'application/json'
+                  },
+              });
+
               console.log('Login response:', response.data);
               
               const { token } = response.data;
@@ -50,15 +49,13 @@ const AdminLogin = () => {
       
                   navigate("/dashboard");
               }
-          } catch (error) {
-            console.log('Full error:', error); // เพิ่มบรรทัดนี้
+            } catch (error) {
+              console.log('Full error:', error);
               Swal.fire({
                   icon: 'error',
                   title: 'เข้าสู่ระบบไม่สำเร็จ',
                   text: error.response?.data?.message || 'เกิดข้อผิดพลาดในการเข้าสู่ระบบ'
               });
-              
-              console.error(error);
           }
       };
 
