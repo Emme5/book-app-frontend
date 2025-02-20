@@ -1,25 +1,29 @@
-import React from 'react'
-import { FiShoppingCart } from 'react-icons/fi'
-import { MdFavorite, MdFavoriteBorder } from 'react-icons/md'
-import { Link, useNavigate } from 'react-router-dom'
-import { useDispatch, useSelector } from 'react-redux'
-import { addToCart } from '../../../redux/features/cart/cartSlice'
-import { addToFavorites, fetchUserFavorites, removeFromFavorites } from '../../../redux/features/favorites/favoritesSlice'
-import Swal from 'sweetalert2'
+import React from 'react';
+import { FiShoppingCart } from 'react-icons/fi';
+import { MdFavorite, MdFavoriteBorder } from 'react-icons/md';
+import { Link, useNavigate } from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux';
+import { addToCart } from '../../../redux/features/cart/cartSlice';
+import {
+  addToFavorites,
+  fetchUserFavorites,
+  removeFromFavorites,
+} from '../../../redux/features/favorites/favoritesSlice';
+import Swal from 'sweetalert2';
 import { useAuth } from '../../../context/AuthContext';
 
-const BookCard = ({book}) => {
+const BookCard = ({ book }) => {
   const navigate = useNavigate();
   const { currentUser } = useAuth();
   const dispatch = useDispatch();
   const { favoriteItems } = useSelector((state) => state.favorites);
-  const isFavorite = Array.isArray(favoriteItems) && favoriteItems.some(item => 
-    item?._id === book?._id
+  const isFavorite = Array.isArray(favoriteItems) && favoriteItems.some(
+    (item) => item?._id === book?._id
   );
 
   const handleAddToCart = (product) => {
-    dispatch(addToCart(product))
-  }
+    dispatch(addToCart(product));
+  };
 
   const handleToggleFavorite = async () => {
     if (!currentUser) {
@@ -29,7 +33,7 @@ const BookCard = ({book}) => {
         text: 'คุณต้องเข้าสู่ระบบก่อนเพิ่มหนังสือในรายการโปรด',
         showCancelButton: true,
         confirmButtonText: 'เข้าสู่ระบบ',
-        cancelButtonText: 'ยกเลิก'
+        cancelButtonText: 'ยกเลิก',
       }).then((result) => {
         if (result.isConfirmed) {
           navigate('/login');
@@ -41,17 +45,17 @@ const BookCard = ({book}) => {
     try {
       const actionMethod = isFavorite ? removeFromFavorites : addToFavorites;
       const actionPayload = { bookId: book._id, userId: currentUser.uid };
-  
+
       const result = await dispatch(actionMethod(actionPayload)).unwrap();
-      
+
       // เพิ่มการเช็คผลลัพธ์จาก API
       if (!Array.isArray(result)) {
         throw new Error('Invalid response format');
       }
-  
+
       // อัพเดท UI ทันทีหลังจากได้รับการตอบกลับ
       dispatch(fetchUserFavorites(currentUser.uid));
-  
+
       Swal.fire({
         position: 'top-end',
         icon: 'success',
@@ -62,8 +66,8 @@ const BookCard = ({book}) => {
         background: '#4CAF50',
         color: '#fff',
         customClass: {
-          popup: 'colored-toast'
-        }
+          popup: 'colored-toast',
+        },
       });
     } catch (error) {
       console.error('Favorites Update Error:', error);
@@ -84,8 +88,8 @@ const BookCard = ({book}) => {
               ลด {Math.round(((book.oldPrice - book.newPrice) / book.oldPrice) * 100)}%
             </div>
           )}
-      {/* เพิ่มปุ่มหัวใจ */}
-      <button
+          {/* เพิ่มปุ่มหัวใจ */}
+          <button
             onClick={handleToggleFavorite}
             className="absolute top-2 right-2 bg-white p-2 rounded-full shadow-md hover:bg-gray-100 transition-colors z-10"
           >
@@ -104,24 +108,28 @@ const BookCard = ({book}) => {
           </Link>
         </div>
 
-        <div>
+        <div className="flex flex-col justify-between flex-grow p-4">
+          {/* ชื่อหนังสือชิดขอบบน */}
           <Link to={`/book/${book._id}`}>
             <h3 className="text-xl font-semibold hover:text-blue-600 mb-3">
               {book?.title}
             </h3>
           </Link>
+
+          {/* ชื่อผู้แต่ง */}
           <p className="text-gray-600 mb-5">
-            {book?.description ? 
-              (book.description.length > 80 ? 
-                `${book.description.slice(0, 80)}...` : 
-                book.description
-              ) : ''
-            }
+            โดย {book?.author || 'ชื่อผู้แต่ง'}
           </p>
+
+          {/* ราคา */}
           <p className="font-medium mb-5">
-            ${book?.newPrice} <span className="line-through font-normal ml-2">
-              ${book?.oldPrice}</span>
+            ฿{book?.newPrice}
+            <span className="line-through font-normal ml-2">
+              ฿{book?.oldPrice}
+            </span>
           </p>
+
+          {/* ปุ่มเพิ่มลงตะกร้า */}
           <button
             onClick={() => handleAddToCart(book)}
             className="btn-primary px-6 space-x-1 flex items-center gap-1"
@@ -132,7 +140,7 @@ const BookCard = ({book}) => {
         </div>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default BookCard
+export default BookCard;

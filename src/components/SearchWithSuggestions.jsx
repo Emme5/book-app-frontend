@@ -62,15 +62,12 @@ const SearchWithSuggestions = ({ books = [] }) => {  // เพิ่ม default 
 
                 setSuggestions(groupedResults);
                 setShowSuggestions(true);
-                // ส่งการค้นหาไปยังหน้า Book ทันที
-                navigate(`/book?q=${encodeURIComponent(searchTerm)}`);
             }
             setIsSearching(false);
-        }, 300); // ลดเวลา delay ลงเพื่อให้ real time มากขึ้น
+        }, 300);
 
         return () => clearTimeout(timeoutId);
     } else {
-        // เมื่อไม่มีข้อความค้นหา
         setSuggestions({
             authors: Array.from(new Set(validBooks.map(book => book.author))).slice(0, 5),
             titles: validBooks.map(book => book.title).slice(0, 5),
@@ -78,10 +75,8 @@ const SearchWithSuggestions = ({ books = [] }) => {  // เพิ่ม default 
         });
         setShowSuggestions(true);
         setIsSearching(false);
-        // นำทางกลับไปหน้า Book โดยไม่มีพารามิเตอร์การค้นหา
-        navigate('/book');
     }
-}, [searchTerm, fuse, validBooks, navigate]);
+}, [searchTerm, fuse, validBooks]);
 
 const handleSearch = (e) => {
   e.preventDefault();
