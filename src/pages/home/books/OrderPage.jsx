@@ -107,7 +107,6 @@ const getStatusColor = (status) => {
                   <h3 className='font-semibold text-gray-700 mb-3'>ข้อมูลลูกค้า</h3>
                   <div className="space-y-2">
                     <p className='text-gray-600'><span className="font-medium">ชื่อ:</span> {order.name}</p>
-                    <p className='text-gray-600'><span className="font-medium">อีเมล:</span> {order.email}</p>
                     <p className='text-gray-600'><span className="font-medium">เบอร์โทร:</span> {order.phone}</p>
                   </div>
                 </div>
