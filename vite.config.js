@@ -8,7 +8,7 @@ export default defineConfig({
    open: true,
    proxy: {
      '/api': {
-       target: 'https://book-app-backend-alpha.vercel.app', // ใช้นี้ http://localhost:5000 แทนหากจะแก้ไขในคอมตัวเอง
+       target: 'http://localhost:5000',
        changeOrigin: true,
        secure: false
      }
