@@ -296,8 +296,11 @@ const DeliveryStatus = () => {
                         </div>
                         <div>
                           <h4 className="font-semibold mb-2">ที่อยู่จัดส่ง</h4>
-                          <p className='mb-3'>{order.address.city}, {order.address.state}</p>
-                          <p className='mb-3'>{order.address.country}, {order.address.zipcode}</p>
+                          <p className='mb-1'><span className="font-medium">ที่อยู่:</span> {order.address.fullAddress}</p>
+                          <p className='mb-1'><span className="font-medium">ตำบล:</span> {order.address.district}</p>
+                          <p className='mb-1'><span className="font-medium">อำเภอ:</span> {order.address.amphure}</p>
+                          <p className='mb-1'><span className="font-medium">จังหวัด:</span> {order.address.province}</p>
+                          <p className='mb-1'><span className="font-medium">รหัสไปรษณีย์:</span> {order.address.zipcode}</p>
                         </div>
                       </div>
 

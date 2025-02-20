@@ -114,11 +114,23 @@ const getStatusColor = (status) => {
 
                 <div className="bg-gray-50 p-4 rounded-lg">
                   <h3 className='font-semibold text-gray-700 mb-3'>ที่อยู่จัดส่ง</h3>
-                  <p className='text-gray-600'>
-                    {order.address.city}, {order.address.state},
-                    <br/>
-                    {order.address.country}, {order.address.zipcode}
-                  </p>
+                  <div className='space-y-2'>
+                    <p className='text-gray-600'>
+                      <span className="font-medium">ที่อยู่ :</span> {order.address.fullAddress}
+                    </p>
+                    <p className='text-gray-600'>
+                      <span className="font-medium">ตำบล :</span> {order.address.district}
+                    </p>
+                    <p className='text-gray-600'>
+                      <span className="font-medium">อำเภอ :</span> {order.address.amphure}
+                    </p>
+                    <p className='text-gray-600'>
+                      <span className="font-medium">จังหวัด :</span> {order.address.province}
+                    </p>
+                    <p className='text-gray-600'>
+                      <span className="font-medium">รหัสไปรษณีย์ :</span> {order.address.zipcode}
+                    </p>
+                  </div>
                 </div>
               </div>
 
