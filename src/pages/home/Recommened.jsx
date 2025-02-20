@@ -60,6 +60,12 @@ const createSlides = () => {
                 modules={[Navigation, Autoplay, Pagination]}
                 onAutoplayTimeLeft={onAutoplayTimeLeft}
                 className="mySwiper"
+                style={{
+                    "--swiper-pagination-bullet-inactive-color": "transparent",
+                    "--swiper-pagination-bullet-inactive-opacity": "0",
+                    "--swiper-pagination-bullet-size": "0px",
+                    "--swiper-pagination-bottom": "0px"
+                }}
             >
                 {createSlides().map((slide, slideIndex) => (
                     <SwiperSlide key={slideIndex}>
