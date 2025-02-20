@@ -4,7 +4,7 @@ const getBaseUrl = () => {
     
     // ถ้าเป็น development mode ใช้ localhost
     if (import.meta.env.MODE === 'development') {
-        return 'https://book-app-backend-alpha.vercel.app';
+        return 'http://localhost:5000';
     }
     
     // ถ้าเป็น production mode ใช้ URL จาก env
@@ -12,7 +12,7 @@ const getBaseUrl = () => {
         return import.meta.env.VITE_SERVER_URL;
     }
 
-    return 'http://localhost:5000'; // fallback
+    return 'https://book-app-backend-alpha.vercel.app'; // fallback
 };
 
 export default getBaseUrl;
