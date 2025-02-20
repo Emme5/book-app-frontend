@@ -151,7 +151,7 @@ style.textContent = `
   
   @keyframes shine {
     from { transform: translateX(-100%); }
-    to { transform: translateX(100%); }
+    to { transform: translateX(150%); }
   }
   
   @keyframes slideIn {
