@@ -19,10 +19,10 @@ const categories = [
 	{ name: "การ์ตูน", color: "yellow" },
 	{ name: "คอมพิวเตอร์", color: "cyan" },
 	{ name: "สุขภาพ", color: "teal" },
-	{ name: "มังงะ", color: "indigo" },
+	{ name: "หนังสืออิเล็กทรอนิกส์", color: "indigo" },
 	{ name: "ดนตรี", color: "orange" },
 	{ name: "ท่องเที่ยว", color: "emerald" },
-	{ name: "ประวัติศาสตร์", color: "amber" }
+	{ name: "ความรัก", color: "amber" }
   ];
 
 function Book() {
