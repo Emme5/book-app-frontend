@@ -150,7 +150,7 @@ const DashboardLayout = () => {
                 </div>
               ) : (
                 <img
-                  src="https://i.natgeofe.com/n/4f5aaece-3300-41a4-b2a8-ed2708a0a27c/domestic-dog_thumb_square.jpg"
+                  src="https://cdn-icons-png.flaticon.com/512/2304/2304226.png"
                   alt="user profile photo"
                   className="h-full w-full object-cover"
                 />
@@ -208,7 +208,7 @@ const DashboardLayout = () => {
           <div className="flex flex-col space-y-6 md:space-y-0 md:flex-row justify-between">
             <div className="mr-6">
               <h1 className="text-4xl font-bold text-gray-900 mb-2">Dashboard</h1>
-              <h2 className="text-gray-600 ml-0.5">หน้า Dashboard ของแอดมินมีการดำเนินการ CRUD ที่ยังไม่สมบูรณ์</h2>
+              <h2 className="text-gray-600 ml-0.5">หน้า Dashboard ของแอดมินที่มีการดำเนินการ CRUD แบบเบื้องต้น</h2>
             </div>
             <div className="flex flex-col md:flex-row items-start justify-end gap-4">
               <Link

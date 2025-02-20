@@ -12,7 +12,7 @@ const categories = [
   { name: "ทุกประเภท", color: "blue" },
   { name: "ธุรกิจ", color: "green" },
   { name: "จิตวิทยา", color: "purple" },
-  { name: "สยองขวัญ", color: "red" },
+  { name: "โปรแกรม", color: "red" },
   { name: "ภาษา", color: "pink" },
   { name: "การ์ตูน", color: "yellow" },
   { name: "คอมพิวเตอร์", color: "cyan" },
@@ -26,7 +26,8 @@ const categories = [
 const TopSellers = () => {
   const [selectedCategory, setSelectedCategory] = useState("ทุกประเภท");
   const [showAllCategories, setShowAllCategories] = useState(false);
-  const { data: books = [] } = useFetchAllBooksQuery();
+  const { data } = useFetchAllBooksQuery();
+  const books = data?.books || [];
   
 
     // กรองหนังสือที่มี trending=true ก่อน แล้วค่อยกรองตามหมวดหมู่

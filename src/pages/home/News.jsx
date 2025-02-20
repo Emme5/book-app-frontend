@@ -5,11 +5,12 @@ import { useFetchAllBooksQuery } from '../../redux/features/books/booksApi';
 import promoImage from "../../assets/books/promocomputer.jpg";
 
 const Recommended = () => {
-  const { data: books = [] } = useFetchAllBooksQuery();
+  const { data } = useFetchAllBooksQuery();
+  const books = data?.books || []; // แก้ตรงนี้
 
-  const computerBooks = books.filter(book => 
+const computerBooks = books.filter(book => 
     book.category?.toLowerCase() === 'คอมพิวเตอร์'
-  ).slice(0, 8);
+).slice(0, 8);
 
     return (
       <div className="py-6">

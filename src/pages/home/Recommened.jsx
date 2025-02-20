@@ -19,8 +19,9 @@ const Recommended = () => {
             progressContent.current.textContent = `${Math.ceil(time / 1000)}s`;
         }
     };
-
-    const { data: books = [] } = useFetchAllBooksQuery();
+    
+    const { data } = useFetchAllBooksQuery();
+    const books = data?.books || [];
     // กรองเฉพาะหนังสือที่มี recommended=true
     const recommendedBooks = books.filter(book => book.recommended === true)
 

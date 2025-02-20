@@ -31,7 +31,8 @@ const Navbar = () => {
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
     const [isDrawerOpen, setIsDrawerOpen] = useState(false);
     const cartItem = useSelector((state) => state.cart.cartItem);
-    const { data: books = [], isLoading } = useFetchAllBooksQuery();
+    const { data, isLoading } = useFetchAllBooksQuery();
+    const books = data?.books || [];
     const navigate = useNavigate();
     const { currentUser, logout } = useAuth();
     const location = useLocation();
@@ -126,7 +127,7 @@ const Navbar = () => {
                         onClick={() => setIsDrawerOpen(true)}
                     />
 
-                    {!isLoading && books && Array.isArray(books) && (
+                    {!isLoading && books && books.length > 0 && (
                         <SearchWithSuggestions books={books} />
                     )}
                 </div>

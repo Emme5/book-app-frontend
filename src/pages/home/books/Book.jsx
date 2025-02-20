@@ -14,7 +14,7 @@ const categories = [
 	{ name: "ทุกประเภท", color: "blue" },
 	{ name: "ธุรกิจ", color: "green" },
 	{ name: "จิตวิทยา", color: "purple" },
-	{ name: "สยองขวัญ", color: "red" },
+	{ name: "โปรแกรม", color: "red" },
 	{ name: "ภาษา", color: "pink" },
 	{ name: "การ์ตูน", color: "yellow" },
 	{ name: "คอมพิวเตอร์", color: "cyan" },
@@ -30,7 +30,8 @@ function Book() {
     const { currentUser } = useAuth();
     const { favoriteItems } = useSelector((state) => state.favorites);
 	const navigate = useNavigate();
-	const { data: books = [], isLoading } = useFetchAllBooksQuery();
+	const { data, isLoading } = useFetchAllBooksQuery();
+	const books = data?.books || [];
 
     const [selectedBookId, setSelectedBookId] = useState(null);
 	const [isModalOpen, setIsModalOpen] = useState(false);
@@ -98,20 +99,20 @@ function Book() {
 	};
 
 	// ฟังก์ชันกรองหนังสือตามหมวดหมู่และคำค้นหา
-	const filteredBooks = Array.isArray(books) ? books.filter((book) => {
-        const matchesCategory = 
-            selectedCategory === "ทุกประเภท" || 
-            book?.category?.toLowerCase() === selectedCategory?.toLowerCase();
-        
-        const searchTerms = searchQuery.toLowerCase();
-        const matchesSearch = 
-            searchQuery === '' || 
-            book?.title?.toLowerCase().includes(searchTerms) ||
-            book?.author?.toLowerCase().includes(searchTerms) ||
-            book?.category?.toLowerCase().includes(searchTerms);
+	const filteredBooks = books.filter((book) => {  // แก้จาก Array.isArray(books) เป็น books
+		const matchesCategory = 
+			selectedCategory === "ทุกประเภท" || 
+			book?.category?.toLowerCase() === selectedCategory?.toLowerCase();
 		
-			return matchesCategory && matchesSearch;
-		}) : [];
+		const searchTerms = searchQuery.toLowerCase();
+		const matchesSearch = 
+			searchQuery === '' || 
+			book?.title?.toLowerCase().includes(searchTerms) ||
+			book?.author?.toLowerCase().includes(searchTerms) ||
+			book?.category?.toLowerCase().includes(searchTerms);
+		
+		return matchesCategory && matchesSearch;
+	});
 
 	const indexOfLastBook = currentPage * booksPerPage;
 	const indexOfFirstBook = indexOfLastBook - booksPerPage;
@@ -164,7 +165,13 @@ function Book() {
 		return `${baseStyles} ${colorStyles[color]}`;
 	  };
 	
-	if (!books || (Array.isArray(books) && books.length === 0)) {
+	  if (isLoading) {
+		return <div className="text-center py-10">กำลังโหลดข้อมูล...</div>;
+	}
+	
+	if (!books || books.length === 0) {
+		return <div className="text-center py-10">ไม่พบข้อมูลหนังสือ</div>;
+	}if (!books || (Array.isArray(books) && books.length === 0)) {
 		return <div className="text-center py-10">ไม่พบข้อมูลหนังสือ</div>;
 	}
 

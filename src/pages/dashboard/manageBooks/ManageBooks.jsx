@@ -5,17 +5,31 @@ import Swal from "sweetalert2";
 
 const ManageBooks = () => {
     const [searchTerm, setSearchTerm] = useState('');
+    const [currentPage, setCurrentPage] = useState(1);
     const navigate = useNavigate();
+    const ITEMS_PER_PAGE = 20;
     
-    // ใช้ RTK Query hooks พร้อม options
     const { 
-        data: books, 
+        data, 
         error: fetchError, 
         isLoading,
         refetch 
-    } = useFetchAllBooksQuery(undefined, {
-        refetchOnMountOrArgChange: true
+    } = useFetchAllBooksQuery({
+        page: currentPage,
+        limit: ITEMS_PER_PAGE
     });
+
+    const handlePrevPage = () => {
+        if (currentPage > 1) {
+            setCurrentPage(prev => prev - 1);
+        }
+    };
+
+    const handleNextPage = () => {
+        if (currentPage < data?.totalPages) {
+            setCurrentPage(prev => prev + 1);
+        }
+    };
 
     const [deleteBook] = useDeleteBookMutation();
 
@@ -54,7 +68,7 @@ const ManageBooks = () => {
     };
     
     // กรองหนังสือตามการค้นหา
-    const filteredBooks = books?.filter(book => 
+    const filteredBooks = data?.books?.filter(book => 
         book.title.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
@@ -84,9 +98,9 @@ const ManageBooks = () => {
                     <div className="rounded-t mb-0 px-4 py-3 border-0">
                         <div className="flex flex-wrap items-center justify-between">
                             <div className="relative w-full px-4 max-w-full flex-grow flex-1">
-                                <h3 className="font-semibold text-base text-blueGray-700">
-                                    หนังสือทั้งหมด ({books?.length || 0} เล่ม)
-                                </h3>
+                            <h3 className="font-semibold text-base text-blueGray-700">
+                                หนังสือทั้งหมด ({data?.totalBooks || 0} เล่ม)
+                            </h3>
                             </div>
                             <div className="relative w-full px-4 max-w-full flex-grow flex-1">
                                 <input
@@ -165,6 +179,35 @@ const ManageBooks = () => {
                         </table>
                     </div>
                 </div>
+            </div>
+            <div className="flex justify-center items-center space-x-4 mt-4 mb-8">
+                <button
+                    onClick={handlePrevPage}
+                    disabled={currentPage === 1}
+                    className={`px-4 py-2 rounded ${
+                        currentPage === 1 
+                        ? 'bg-gray-300 cursor-not-allowed' 
+                        : 'bg-blue-500 hover:bg-blue-600 text-white'
+                    }`}
+                >
+                    หน้าก่อนหน้า
+                </button>
+                
+                <span className="text-gray-600">
+                    หน้า {data?.currentPage} จาก {data?.totalPages}
+                </span>
+                
+                <button
+                    onClick={handleNextPage}
+                    disabled={currentPage === data?.totalPages}
+                    className={`px-4 py-2 rounded ${
+                        currentPage === data?.totalPages 
+                        ? 'bg-gray-300 cursor-not-allowed' 
+                        : 'bg-blue-500 hover:bg-blue-600 text-white'
+                    }`}
+                >
+                    หน้าถัดไป
+                </button>
             </div>
         </section>
     );

@@ -131,7 +131,7 @@ const UpdateBook = () => {
             { value: '', label: 'เลือกหมวดหมู่' },
             { value: 'ธุรกิจ', label: 'ธุรกิจ' },
             { value: 'จิตวิทยา', label: 'จิตวิทยา' },
-            { value: 'สยองขวัญ', label: 'สยองขวัญ' },
+            { value: 'โปรแกรม', label: 'โปรแกรม' },
             { value: 'ภาษา', label: 'ภาษา' },
             { value: 'การ์ตูน', label: 'การ์ตูน' },
             { value: 'คอมพิวเตอร์', label: 'คอมพิวเตอร์' },

@@ -19,19 +19,20 @@ const booksApi = createApi({
 	tagTypes: ["Books"],
 	endpoints: (builder) => ({
 		fetchAllBooks: builder.query({
-			query: () => "/",
-			// เพิ่ม transform response
+			query: (params) => ({
+				url: '/',
+				params: {
+					page: params?.page || 1,
+					limit: params?.limit || 20
+				}
+			}),
 			transformResponse: (response) => {
-				// ตรวจสอบว่า response มี books property หรือไม่
-				if (response && response.books) {
-					return response.books;
-				}
-				// ถ้าเป็น array อยู่แล้วก็ return เลย
-				if (Array.isArray(response)) {
-					return response;
-				}
-				// ถ้าไม่ใช่ทั้งสองกรณี return array ว่าง
-				return [];
+				return {
+					books: response.books || [],
+					currentPage: response.currentPage,
+					totalPages: response.totalPages,
+					totalBooks: response.totalBooks
+				};
 			},
 			providesTags: ["Books"],
 		}),
