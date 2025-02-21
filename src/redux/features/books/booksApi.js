@@ -23,7 +23,7 @@ const booksApi = createApi({
 				url: '/',
 				params: {
 					page: params?.page || 1,
-					limit: params?.limit || 20
+					limit: params?.limit || 48,
 				}
 			}),
 			transformResponse: (response) => {
